@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* --- TIMELINE CONTAINER --- */
+    .timeline-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        position: relative;
+    }
+
+    /* The vertical line connecting days */
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 20px; /* Adjust for mobile */
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        z-index: 0;
+    }
+
+    /* --- CARD STYLES --- */
+    .timeline-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        margin-left: 50px; /* Space for the line */
+        position: relative;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    /* The Dot on the timeline */
+    .timeline-dot {
+        position: absolute;
+        left: -43px; /* Aligns with the line */
+        top: 30px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        border: 4px solid var(--primary);
+        box-shadow: 0 0 15px var(--primary);
+        z-index: 1;
+    }
+
+    /* --- LOCKED STATE --- */
+    .locked-card {
+        opacity: 0.7;
+        filter: grayscale(0.6);
+        pointer-events: none; /* Can't click it */
+        border: 1px dashed rgba(255,255,255,0.3);
+    }
+    .locked-card .timeline-dot {
+        background: #555;
+        border-color: #888;
+        box-shadow: none;
+    }
+
+    /* --- UNLOCKED STATE --- */
+    .unlocked-card {
+        border: 1px solid rgba(255, 77, 109, 0.5);
+        box-shadow: 0 0 20px rgba(255, 77, 109, 0.2);
+    }
+    .unlocked-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(255, 77, 109, 0.4);
+    }
+
+    /* DATE BADGE */
+    .date-badge {
+        display: inline-block;
+        background: rgba(0,0,0,0.3);
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        color: rgba(255,255,255,0.8);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+</style>
+
+<div style="text-align: center; margin-bottom: 50px;">
+    <h1 style="font-size: 3.5rem; margin-bottom: 10px;">The Love Archive</h1>
+    <p style="font-size: 1.2rem; opacity: 0.8;">A timeline of us. One day at a time.</p>
+</div>
+
+<div class="timeline-container">
+    {% for day in days %}
+    
+    {% if day.date_to_unlock <= today %}
+        
+        <div class="timeline-card unlocked-card">
+            <div class="timeline-dot"></div>
+            
+            <span class="date-badge">
+                <i class="fas fa-calendar-alt"></i> {{ day.date_to_unlock|date:"F jS" }}
+            </span>
+            
+            <h2 style="margin: 10px 0; font-size: 2rem;">{{ day.title }}</h2>
+            <p style="opacity: 0.9; margin-bottom: 20px;">Memory available. Authentication required.</p>
+            
+            <a href="{% url 'unlock_day' day.id %}" class="btn-glow">
+                <i class="fas fa-unlock"></i> Open Memory
+            </a>
+        </div>
+
+    {% else %}
+
+        <div class="timeline-card locked-card">
+            <div class="timeline-dot"></div>
+
+            <span class="date-badge">
+                <i class="fas fa-clock"></i> Unlocks on {{ day.date_to_unlock|date:"F jS" }}
+            </span>
+
+            <h2 style="margin: 10px 0; font-size: 2rem; color: #aaa;">{{ day.title }}</h2>
+            
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; color: #ff4d6d;">
+                <i class="fas fa-lock" style="font-size: 1.5rem;"></i>
+                <span style="font-weight: 600; letter-spacing: 1px; font-size: 1.1rem;">COMING SOON</span>
+            </div>
+        </div>
+
+    {% endif %}
+
+    {% empty %}
+        <div class="glass-card" style="text-align: center;">
+            <h2>Nothing here yet!</h2>
+            <p>Sachin needs to add memories in the Admin Panel.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

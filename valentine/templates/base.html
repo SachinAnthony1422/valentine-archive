@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Archive | Sachin & Her</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Great+Vibes&family=Playfair+Display:ital,wght@1,600;1,800&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #ff0a54; /* Deeper Red/Pink */
+            --gold: #ffd700;
+            --glass: rgba(20, 10, 30, 0.4); /* Darker glass for better contrast */
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-glow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* GALAXY BACKGROUND */
+        body {
+            margin: 0;
+            /* Romantic/Royal Fonts by default */
+            font-family: 'Playfair Display', serif; 
+            background: linear-gradient(45deg, #2b1055, #7597de, #ff9a9e, #a18cd1);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* VISIBILITY FIX: Stronger Text */
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif; /* Cinematic Font */
+            font-weight: 700;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8); /* Strong shadow */
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        p, span, a, div {
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.9); /* Ensures text is readable */
+            font-weight: 600;
+        }
+
+        /* GLASS CARD */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            margin: 30px auto;
+            max-width: 900px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* BUTTONS */
+        .btn-glow {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(45deg, #ff0a54, #ff477e);
+            color: white;
+            border: 1px solid white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(255, 10, 84, 0.6);
+            transition: 0.3s;
+        }
+        .btn-glow:hover {
+            transform: scale(1.1);
+            background: white;
+            color: #ff0a54;
+        }
+
+        /* STARS */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            z-index: 1;
+            opacity: 0.8;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="star-container"></div>
+
+    <audio id="globalAudio" loop>
+        <source src="{% static 'music/default.mp3' %}" type="audio/mp3">
+    </audio>
+
+    <div style="padding: 20px;">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        // Star Generator
+        const starContainer = document.getElementById('star-container');
+        for(let i=0; i<60; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.animationDuration = Math.random() * 2 + 1 + 's';
+            starContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>

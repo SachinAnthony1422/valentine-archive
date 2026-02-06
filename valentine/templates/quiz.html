@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* --- SECURITY CARD STYLE --- */
+    .security-card {
+        text-align: center;
+        padding: 60px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Lock Icon Animation */
+    .lock-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        color: #ff4d6d;
+        text-shadow: 0 0 20px rgba(255, 77, 109, 0.6);
+        animation: floatLock 3s ease-in-out infinite;
+    }
+    @keyframes floatLock {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* The Question Text */
+    .security-question {
+        font-size: 1.8rem;
+        margin-bottom: 40px;
+        color: #fff;
+        font-weight: 600;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    /* The Input Field */
+    .input-group {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    .input-group input {
+        width: 100%;
+        max-width: 400px;
+        padding: 15px 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        background: rgba(0,0,0,0.3);
+        border-radius: 50px;
+        color: #fff;
+        font-size: 1.2rem;
+        text-align: center;
+        outline: none;
+        transition: 0.3s;
+        font-family: 'Poppins', sans-serif;
+    }
+    .input-group input:focus {
+        border-color: #ff4d6d;
+        background: rgba(0,0,0,0.5);
+        box-shadow: 0 0 20px rgba(255, 77, 109, 0.3);
+    }
+    .input-group input::placeholder {
+        color: rgba(255,255,255,0.5);
+        font-size: 1rem;
+    }
+
+    /* Error Message Shake */
+    .error-msg {
+        background: rgba(255, 0, 0, 0.2);
+        color: #ffb3b3;
+        padding: 10px 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        display: inline-block;
+        border: 1px solid rgba(255,0,0,0.3);
+        animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+</style>
+
+<div class="glass-card security-card">
+    
+    <div class="lock-icon">
+        <i class="fas fa-lock"></i>
+    </div>
+
+    <h1 style="margin-bottom: 10px; font-size: 1.2rem; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase;">
+        Security Clearance Required
+    </h1>
+
+    <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 40px;">
+        To access the "<b>{{ day.title }}</b>" memory file, please answer security question:
+    </p>
+
+    <h2 class="security-question">
+        "{{ day.clue_question }}"
+    </h2>
+
+    <form method="POST" autocomplete="off">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" name="answer" placeholder="Type secret password..." required autofocus>
+        </div>
+        
+        <button type="submit" class="btn-glow" style="width: 100%; max-width: 300px;">
+            <i class="fas fa-fingerprint"></i> Authenticate
+        </button>
+    </form>
+
+    {% if error %}
+    <div class="error-msg">
+        <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 40px;">
+        <a href="{% url 'home' %}" style="color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.9rem; transition: 0.3s;">
+            <i class="fas fa-arrow-left"></i> Abort Mission
+        </a>
+    </div>
+</div>
+
+<script>
+    // Simple entry animation
+    gsap.from(".security-card", {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out"
+    });
+</script>
+{% endblock %}

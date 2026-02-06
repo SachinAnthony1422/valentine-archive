@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+<style>
+    /* --- 1. HACKER LOADER --- */
+    #tech-loader {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 10000;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        font-family: 'Courier New', monospace;
+    }
+    .loader-text { color: #0f0; font-size: 1.5rem; text-shadow: 0 0 10px #0f0; margin-bottom: 20px; }
+    .progress-bar { width: 300px; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: #0f0; box-shadow: 0 0 15px #0f0; }
+
+    /* --- 2. MAIN CONTENT WRAPPER --- */
+    #romantic-content { opacity: 0; transition: opacity 2s ease; }
+
+    /* --- 3. THE POLAROID STAGE (TOP) --- */
+    .polaroid-wrapper {
+        display: flex; justify-content: center; margin-bottom: 30px;
+        perspective: 1000px; /* For 3D effect */
+    }
+
+    .polaroid-frame {
+        background: #fff;
+        padding: 15px 15px 60px 15px; /* Classic Polaroid padding */
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        transform: rotate(-3deg); /* Tilted look */
+        transition: transform 0.3s ease;
+        animation: floatPolaroid 6s ease-in-out infinite;
+        cursor: pointer;
+        max-width: 320px;
+        width: 100%;
+    }
+    .polaroid-frame:hover { transform: rotate(0deg) scale(1.02); z-index: 50; }
+
+    /* The "Window" inside the Polaroid */
+    .photo-window {
+        position: relative;
+        width: 100%;
+        height: 350px; /* Fixed height for consistency */
+        background: #000;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    /* The Image */
+    .hidden-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Fills the box perfectly */
+        object-position: center;
+    }
+
+    /* The Curtains (Inside the Polaroid) */
+    .curtain {
+        position: absolute; top: 0; height: 100%; width: 51%;
+        background: #800020; z-index: 10;
+        transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        background-image: repeating-linear-gradient(90deg, #800020, #5a0016 10px, #800020 20px);
+    }
+    .curtain-left { left: 0; transform-origin: left; border-right: 1px solid rgba(0,0,0,0.3); }
+    .curtain-right { right: 0; transform-origin: right; border-left: 1px solid rgba(0,0,0,0.3); }
+    
+    /* Open State */
+    .polaroid-frame.open .curtain-left { transform: translateX(-100%); }
+    .polaroid-frame.open .curtain-right { transform: translateX(100%); }
+    
+    /* Text on Curtain */
+    .curtain-text {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        color: #ffd700; z-index: 20;
+        font-family: 'Cinzel', serif; font-size: 1rem; width: 100%; text-align: center;
+        text-shadow: 0 2px 5px black; pointer-events: none; transition: opacity 0.5s;
+    }
+    .polaroid-frame.open .curtain-text { opacity: 0; }
+
+    @keyframes floatPolaroid {
+        0%, 100% { transform: rotate(-3deg) translateY(0px); }
+        50% { transform: rotate(-3deg) translateY(-15px); }
+    }
+
+    /* --- 4. INTERACTIVE ROSE (MIDDLE) --- */
+    .rose-wrapper {
+        position: relative; width: 180px; height: 180px; margin: 0 auto 20px auto;
+        cursor: pointer; z-index: 100;
+    }
+    .rose-center {
+        position: absolute; width: 30px; height: 30px; background: #500;
+        border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        box-shadow: 0 0 10px rgba(255, 0, 80, 0.6); z-index: 20;
+    }
+    .petal {
+        position: absolute; width: 50px; height: 50px;
+        background: linear-gradient(135deg, #ff0a54, #ff477e);
+        border-radius: 50% 0 50% 50%; top: 50%; left: 50%;
+        transform-origin: 0% 0%; box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+        transition: transform 0.3s; border: 1px solid rgba(255,255,255,0.2);
+    }
+    .petal:hover { filter: brightness(1.2); scale: 1.1; }
+    
+    .instruction {
+        color: #ffd700; font-family: 'Cinzel', serif; font-size: 1rem;
+        margin-bottom: 10px; animation: floatText 2s infinite ease-in-out;
+    }
+    @keyframes floatText { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+
+    /* --- 5. MESSAGE SCROLL (BOTTOM) --- */
+    .scroll-container {
+        background: #fffdf5; color: #2b1b17;
+        padding: 50px 30px; border-radius: 4px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        margin: 20px auto; position: relative; max-width: 600px;
+        min-height: 150px;
+    }
+    .scroll-handle {
+        position: absolute; width: 106%; height: 20px;
+        background: linear-gradient(to right, #8b5a2b, #d4c5a9, #8b5a2b);
+        left: -3%; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+    }
+    .handle-top { top: -10px; } .handle-bottom { bottom: -10px; }
+
+    .scroll-content {
+        font-family: 'Dancing Script', cursive; 
+        font-size: 1.8rem; line-height: 1.5; font-weight: 600;
+    }
+    .revealed-line { opacity: 0; transform: translateY(10px); display: block; margin-bottom: 10px; }
+
+    /* Music & Save */
+    .controls-wrapper {
+        margin-top: 30px; opacity: 0; pointer-events: none; transition: opacity 1s;
+    }
+    .visible { opacity: 1 !important; pointer-events: auto !important; }
+    
+    .music-box {
+        background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3);
+        padding: 8px 15px; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px;
+    }
+
+</style>
+
+<div id="tech-loader">
+    <div class="loader-text" id="loader-msg">AUTHENTICATING...</div>
+    <div class="progress-bar"><div class="progress-fill" id="fill-bar"></div></div>
+</div>
+
+<div id="romantic-content">
+    <div class="glass-card" style="text-align: center;">
+        
+        <h1 style="font-family: 'Cinzel', serif; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 15px #ff4d6d;">
+            {{ day.title }}
+        </h1>
+
+        {% if day.photo %}
+        <div class="polaroid-wrapper">
+            <div class="polaroid-frame" onclick="this.classList.add('open')">
+                <div class="photo-window">
+                    <div class="curtain-text">TAP TO REVEAL ❤️</div>
+                    <div class="curtain curtain-left"></div>
+                    <div class="curtain curtain-right"></div>
+                    <img src="{{ day.photo.url }}" class="hidden-photo">
+                </div>
+                <div style="font-family: 'Dancing Script', cursive; color: #333; margin-top: 15px; font-size: 1.5rem;">
+                    Our Memory
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <p class="instruction">Pick a petal to read my letter...</p>
+        <div class="rose-wrapper" id="rose-flower">
+            <div class="rose-center"></div>
+        </div>
+
+        <div class="scroll-container">
+            <div class="scroll-handle handle-top"></div>
+            <div class="scroll-content" id="message-display">
+                </div>
+            <div class="scroll-handle handle-bottom"></div>
+        </div>
+
+        <div class="controls-wrapper" id="final-controls">
+            {% if day.music %}
+            <div class="music-box">
+                <i class="fas fa-music" style="color: #ff4d6d;"></i>
+                <audio controls autoplay loop style="height: 25px;">
+                    <source src="{{ day.music.url }}" type="audio/mpeg">
+                </audio>
+            </div>
+            {% endif %}
+            
+            <br><br>
+            <a href="{% url 'home' %}" class="btn-glow">Save Memory</a>
+        </div>
+
+    </div>
+</div>
+
+<div id="hidden-letter-source" style="display:none;">{{ day.love_letter }}</div>
+
+<script>
+    // --- SETUP ---
+    const rawText = document.getElementById('hidden-letter-source').innerText.trim();
+    const lines = rawText.split(/\n|\./).filter(line => line.trim().length > 0);
+    const roseContainer = document.getElementById('rose-flower');
+    const messageBoard = document.getElementById('message-display');
+    const finalControls = document.getElementById('final-controls');
+    
+    let currentLine = 0;
+    const totalPetals = Math.min(Math.max(lines.length, 8), 12); 
+
+    // --- GENERATE ROSE ---
+    function createRose() {
+        for (let i = 0; i < totalPetals; i++) {
+            const petal = document.createElement('div');
+            petal.classList.add('petal');
+            
+            const angle = (i * 137.5) % 360;
+            const distance = Math.sqrt(i) * 10;
+            
+            petal.style.transform = `rotate(${angle}deg) translate(${distance}px)`;
+            petal.style.zIndex = totalPetals - i;
+            
+            petal.onclick = function() { pickPetal(petal); };
+            roseContainer.appendChild(petal);
+        }
+        const center = document.querySelector('.rose-center');
+        roseContainer.appendChild(center);
+    }
+
+    // --- PICK LOGIC ---
+    function pickPetal(petal) {
+        if(petal.classList.contains('picked')) return;
+        petal.classList.add('picked');
+        
+        gsap.to(petal, {
+            y: 200, x: (Math.random()-0.5)*200, rotation: Math.random()*90,
+            opacity: 0, duration: 1.5, ease: "power1.in"
+        });
+
+        if (currentLine < lines.length) {
+            const lineEl = document.createElement('div');
+            lineEl.classList.add('revealed-line');
+            lineEl.innerText = lines[currentLine].trim();
+            messageBoard.appendChild(lineEl);
+            
+            gsap.to(lineEl, { opacity: 1, y: 0, duration: 1 });
+            messageBoard.scrollTop = messageBoard.scrollHeight; 
+            currentLine++;
+        }
+
+        const remainingPetals = document.querySelectorAll('.petal:not(.picked)').length;
+        if (currentLine >= lines.length || remainingPetals === 0) {
+            finishGame();
+        }
+    }
+
+    function finishGame() {
+        while(currentLine < lines.length) {
+            const lineEl = document.createElement('div');
+            lineEl.classList.add('revealed-line');
+            lineEl.innerText = lines[currentLine].trim();
+            messageBoard.appendChild(lineEl);
+            gsap.to(lineEl, { opacity: 1, y: 0, duration: 1 });
+            currentLine++;
+        }
+
+        const sig = document.createElement('div');
+        sig.innerHTML = "<br>- Yours, Sachin";
+        sig.style.textAlign = "right"; sig.style.fontSize = "1.5rem";
+        sig.classList.add('revealed-line');
+        messageBoard.appendChild(sig);
+        gsap.to(sig, { opacity: 1, y: 0, duration: 1, delay: 0.5 });
+
+        finalControls.classList.add('visible');
+    }
+
+    // --- LOADER SEQUENCE ---
+    window.onload = function() {
+        createRose(); 
+        
+        const tl = gsap.timeline();
+        tl.to("#fill-bar", { width: "100%", duration: 2 })
+          .to("#loader-msg", { text: "ACCESS GRANTED.", color: "#0f0" })
+          .to("#tech-loader", { opacity: 0, delay: 0.5, onComplete: () => {
+              document.getElementById("tech-loader").style.display = "none";
+          }})
+          .to("#romantic-content", { opacity: 1 });
+    };
+</script>
+{% endblock %}

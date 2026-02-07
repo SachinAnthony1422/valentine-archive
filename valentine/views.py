@@ -44,7 +44,7 @@ def unlock_day(request, day_id):
             
             # --- SPECIAL: PROPOSE DAY LOGIC (Feb 8) ---
             # If the answer is right AND it is Propose Day, show the magic screen
-            if day.date_to_unlock.day == 8 and day.date_to_unlock.month == 2:
+            if day.date_to_unlock.day == 7 and day.date_to_unlock.month == 2:
                 return render(request, 'propose.html', {'day': day})
 
             # SUCCESS: Show the normal love letter page for other days

@@ -42,9 +42,9 @@ def unlock_day(request, day_id):
         # SECURITY CHECK 2: Is the password right?
         if user_answer == correct_answer:
             
-            # --- SPECIAL: PROPOSE DAY LOGIC (Feb 8) ---
-            # If the answer is right AND it is Propose Day, show the magic screen
-            if day.date_to_unlock.day == 7 and day.date_to_unlock.month == 2:
+            # --- SPECIAL: PROPOSE DAY LOGIC ---
+            # This is safer! It checks the name, not the date.
+            if "Propose" in day.title: 
                 return render(request, 'propose.html', {'day': day})
 
             # SUCCESS: Show the normal love letter page for other days

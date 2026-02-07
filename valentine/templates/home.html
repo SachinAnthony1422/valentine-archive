@@ -1,138 +1,233 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <style>
+    /* --- ANIMATIONS --- */
+    @keyframes float { 
+        0% {transform: translateY(0px);} 
+        50% {transform: translateY(-10px);} 
+        100% {transform: translateY(0px);} 
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 10px rgba(255, 77, 109, 0.2); }
+        50% { box-shadow: 0 0 25px rgba(255, 77, 109, 0.6); }
+        100% { box-shadow: 0 0 10px rgba(255, 77, 109, 0.2); }
+    }
+
     /* --- TIMELINE CONTAINER --- */
     .timeline-container {
         display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: 40px;
         position: relative;
+        padding-bottom: 50px;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
-    /* The vertical line connecting days */
+    /* The vertical line */
     .timeline-container::before {
         content: '';
         position: absolute;
-        left: 20px; /* Adjust for mobile */
+        left: 20px;
         top: 0;
         bottom: 0;
-        width: 4px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 2px;
+        width: 3px;
+        background: linear-gradient(to bottom, transparent, #ffd700, #ff4d6d, transparent);
+        box-shadow: 0 0 10px #ff4d6d;
         z-index: 0;
     }
 
     /* --- CARD STYLES --- */
     .timeline-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
+        background: rgba(20, 20, 20, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 215, 0, 0.1);
+        border-radius: 15px;
         padding: 25px;
-        margin-left: 50px; /* Space for the line */
+        margin-left: 60px;
         position: relative;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: all 0.4s ease;
+        overflow: hidden;
     }
 
-    /* The Dot on the timeline */
+    /* The Dot */
     .timeline-dot {
         position: absolute;
-        left: -43px; /* Aligns with the line */
+        left: -49px; /* Aligns with the line */
         top: 30px;
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
-        background: #fff;
-        border: 4px solid var(--primary);
-        box-shadow: 0 0 15px var(--primary);
-        z-index: 1;
+        background: #000;
+        border: 3px solid #ffd700;
+        box-shadow: 0 0 15px #ffd700;
+        z-index: 2;
+        transition: transform 0.3s;
     }
 
     /* --- LOCKED STATE --- */
     .locked-card {
-        opacity: 0.7;
-        filter: grayscale(0.6);
-        pointer-events: none; /* Can't click it */
-        border: 1px dashed rgba(255,255,255,0.3);
+        opacity: 0.6;
+        filter: grayscale(0.8);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
     }
     .locked-card .timeline-dot {
-        background: #555;
-        border-color: #888;
+        border-color: #555;
         box-shadow: none;
+    }
+    .locked-card:hover {
+        transform: scale(0.98);
     }
 
     /* --- UNLOCKED STATE --- */
     .unlocked-card {
-        border: 1px solid rgba(255, 77, 109, 0.5);
-        box-shadow: 0 0 20px rgba(255, 77, 109, 0.2);
+        border: 1px solid rgba(255, 77, 109, 0.4);
     }
     .unlocked-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(255, 77, 109, 0.4);
+        transform: translateX(10px) scale(1.02);
+        background: rgba(40, 40, 40, 0.8);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 77, 109, 0.2);
+        border-color: #ff4d6d;
+    }
+    .unlocked-card:hover .timeline-dot {
+        transform: scale(1.5);
+        background: #ff4d6d;
     }
 
     /* DATE BADGE */
     .date-badge {
         display: inline-block;
-        background: rgba(0,0,0,0.3);
-        padding: 5px 12px;
+        background: linear-gradient(45deg, #ff4d6d, #ff8fa3);
+        padding: 5px 15px;
         border-radius: 50px;
         font-size: 0.85rem;
+        font-weight: bold;
         margin-bottom: 10px;
-        color: rgba(255,255,255,0.8);
-        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3);
+    }
+
+    /* BUTTON GLOW */
+    .btn-glow {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 10px 25px;
+        background: transparent;
+        border: 2px solid #ffd700;
+        color: #ffd700;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+    .btn-glow:hover {
+        background: #ffd700;
+        color: #000;
+        box-shadow: 0 0 20px #ffd700;
     }
 </style>
 
-<div style="text-align: center; margin-bottom: 50px;">
-    <h1 style="font-size: 3.5rem; margin-bottom: 10px;">The Love Archive</h1>
-    <p style="font-size: 1.2rem; opacity: 0.8;">A timeline of us. One day at a time.</p>
+<div style="text-align: center; margin-bottom: 50px; margin-top: 30px; position: relative; z-index: 10;">
+    
+    <div style="
+        width: 140px; height: 140px; 
+        border-radius: 50%; 
+        border: 4px solid #ffd700;
+        box-shadow: 0 0 30px rgba(255, 77, 109, 0.6);
+        margin: 0 auto 20px auto;
+        overflow: hidden;
+        background: #000;
+        animation: float 4s ease-in-out infinite;
+    ">
+        <img src="{% static 'special/profile.jpeg' %}" alt="Mirasol" 
+             style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+
+    <h1 style="font-family: 'Cinzel', serif; font-size: 3rem; color: #fff; text-shadow: 0 0 15px #ff4d6d; margin-bottom: 10px;">
+        Mirasol's Archive
+    </h1>
+
+    <p style="font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: rgba(255,255,255,0.7); margin-bottom: 20px;">
+        Collecting memories, one day at a time.
+    </p>
+
+    <div style="
+        display: inline-block;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        padding: 10px 30px;
+        border-radius: 50px;
+        border: 1px solid #ffd700;
+        font-family: 'Courier New', monospace;
+        color: #ffd700;
+        font-weight: bold;
+        font-size: 1.2rem;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    ">
+        ❤️ UNLOCKED: {{ score }} / 8
+    </div>
 </div>
 
 <div class="timeline-container">
     {% for day in days %}
-    
-    {% if day.date_to_unlock <= today %}
+        {% load humanize %} 
+        
+        {% if day.date_to_unlock <= today %}
         
         <div class="timeline-card unlocked-card">
             <div class="timeline-dot"></div>
             
             <span class="date-badge">
-                <i class="fas fa-calendar-alt"></i> {{ day.date_to_unlock|date:"F jS" }}
+                <i class="fas fa-heart"></i> {{ day.date_to_unlock|date:"F jS" }}
             </span>
             
-            <h2 style="margin: 10px 0; font-size: 2rem;">{{ day.title }}</h2>
-            <p style="opacity: 0.9; margin-bottom: 20px;">Memory available. Authentication required.</p>
+            <h2 style="margin: 10px 0; font-size: 2rem; color: #fff; font-family: 'Cinzel', serif;">
+                {{ day.title }}
+            </h2>
+            <p style="opacity: 0.8; margin-bottom: 20px; font-family: 'Courier New', monospace;">
+                [STATUS: UNLOCKED] <br> Click to access memory file.
+            </p>
             
-            <a href="{% url 'unlock_day' day.id %}" class="btn-glow">
-                <i class="fas fa-unlock"></i> Open Memory
+            <a href="{% url 'unlock_day' day.pk %}" class="btn-glow">
+                <i class="fas fa-folder-open"></i> Open Memory
             </a>
         </div>
 
     {% else %}
 
-        <div class="timeline-card locked-card">
+    <div class="timeline-card locked-card">
             <div class="timeline-dot"></div>
 
-            <span class="date-badge">
-                <i class="fas fa-clock"></i> Unlocks on {{ day.date_to_unlock|date:"F jS" }}
+            <span class="date-badge" style="background: #444; color: #aaa; box-shadow: none;">
+                <i class="fas fa-lock"></i> {{ day.date_to_unlock|date:"F jS" }}
             </span>
 
-            <h2 style="margin: 10px 0; font-size: 2rem; color: #aaa;">{{ day.title }}</h2>
+            <h2 style="margin: 10px 0; font-size: 2rem; color: #777; font-family: 'Cinzel', serif;">
+                {{ day.title }}
+            </h2>
             
-            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; color: #ff4d6d;">
-                <i class="fas fa-lock" style="font-size: 1.5rem;"></i>
-                <span style="font-weight: 600; letter-spacing: 1px; font-size: 1.1rem;">COMING SOON</span>
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; color: #ff4d6d; opacity: 0.7;">
+                <i class="fas fa-fingerprint" style="font-size: 1.5rem;"></i>
+                <span style="font-weight: 600; letter-spacing: 2px; font-family: 'Courier New', monospace;">
+                    ACCESS DENIED
+                </span>
             </div>
         </div>
 
     {% endif %}
 
     {% empty %}
-        <div class="glass-card" style="text-align: center;">
-            <h2>Nothing here yet!</h2>
-            <p>Sachin needs to add memories in the Admin Panel.</p>
+        <div style="text-align: center; padding: 50px; color: #fff;">
+            <h2>Initializing Archive...</h2>
+            <p>No data found in sector 7G.</p>
         </div>
     {% endfor %}
 </div>

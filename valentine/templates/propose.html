@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<style>
+    body { overflow-x: hidden; background: #000; color: #fff; text-align: center; margin: 0; }
+
+    /* --- VIDEO BACKGROUND (SCENE 1) --- */
+    #bg-video {
+        position: fixed; right: 0; bottom: 0;
+        min-width: 100%; min-height: 100%;
+        width: auto; height: auto;
+        z-index: -1;
+        opacity: 0.7; filter: brightness(0.8);
+    }
+
+    /* --- SCENE 2 BACKGROUND (Deep Red) --- */
+    #scene-2 {
+        display: none;
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at center, #5e001f 0%, #000 90%);
+        overflow-y: scroll; z-index: 10; padding-bottom: 50px;
+    }
+
+    /* --- FONTS --- */
+    h1.cinzel { font-family: 'Cinzel', serif; color: #ffd700; text-shadow: 0 0 15px #ff4d6d; font-size: 2.5rem; margin: 30px 0; }
+    p.dancing { font-family: 'Dancing Script', cursive; font-size: 1.8rem; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+
+    /* --- THE ROYAL SCROLL DESIGN 📜 --- */
+    .scroll-container {
+        position: relative;
+        width: 85%; max-width: 600px;
+        margin: 40px auto;
+        padding: 40px 30px;
+        background: #f4e4bc; /* Parchment Color */
+        color: #4a0e0e; /* Dark Brown/Red Ink */
+        font-family: 'Courier New', monospace; /* Coding Vibe */
+        font-weight: bold;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        border-radius: 2px;
+    }
+    
+    /* The Rolled Paper Effect (Top & Bottom) */
+    .scroll-container::before, .scroll-container::after {
+        content: '';
+        position: absolute; left: -15px; right: -15px; height: 35px;
+        background: #dcc896; /* Darker Scroll Color */
+        border-radius: 20px;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.3);
+        border: 1px solid #bfa06d;
+    }
+    .scroll-container::before { top: -15px; }
+    .scroll-container::after { bottom: -15px; }
+
+    /* Wax Seal Decoration */
+    .wax-seal {
+        font-size: 3rem; color: #800000;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        margin-bottom: 10px;
+    }
+
+    /* --- POLAROID STYLE --- */
+    .polaroid-container {
+        position: relative; width: 300px; margin: 50px auto; z-index: 10;
+        opacity: 0; transform: translateY(50px) rotate(-5deg); transition: all 1.5s ease-out;
+    }
+    .polaroid-frame {
+        background: #fff; padding: 15px 15px 40px 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: rotate(-2deg);
+    }
+    .polaroid-img { width: 100%; height: auto; display: block; border: 2px solid #eee; }
+    .polaroid-caption {
+        font-family: 'Dancing Script', cursive; color: #333; font-size: 1.5rem;
+        position: absolute; bottom: 10px; width: 100%; text-align: center; left: 0;
+    }
+
+    /* --- RING BOX --- */
+    .ring-box-container { margin: 100px auto 50px auto; perspective: 1000px; width: 200px; height: 200px; cursor: pointer; }
+    .ring-box {
+        width: 100%; height: 100%; background: #800020;
+        border: 5px solid #ffd700; border-radius: 15px;
+        position: relative; transform-style: preserve-3d; transition: transform 1s;
+        box-shadow: 0 20px 50px rgba(255, 77, 109, 0.3);
+    }
+    .lid {
+        position: absolute; top: 0; left: 0; width: 100%; height: 50%;
+        background: #a00030; border-bottom: 5px solid #ffd700;
+        transform-origin: top; transition: transform 1s ease-in-out; z-index: 5;
+    }
+    .ring-box.open .lid { transform: rotateX(-120deg); }
+
+    /* --- REVEAL CONTENT --- */
+    #final-reveal { display: none; opacity: 0; transition: opacity 2s; padding-bottom: 100px; }
+    .big-diamond { font-size: 80px; animation: float 3s infinite ease-in-out; text-shadow: 0 0 30px #ffd700; margin-top: 20px; }
+
+    /* --- BUTTONS --- */
+    .btn-yes {
+        background: linear-gradient(45deg, #ff4d6d, #ff0000); border: 2px solid #ffd700;
+        color: white; padding: 15px 50px; font-size: 1.5rem; border-radius: 50px;
+        cursor: pointer; font-family: 'Cinzel', serif; box-shadow: 0 0 30px #ff4d6d;
+        animation: pulse 1.5s infinite; margin-top: 30px;
+    }
+    @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+    .falling-ring { position: fixed; font-size: 2rem; top: -50px; z-index: 100; pointer-events: none; }
+    .scroll-hint { margin-top: 50px; font-size: 1.2rem; color: #aaa; animation: float 2s infinite; }
+</style>
+
+<video autoplay muted loop id="bg-video">
+    <source src="{% static 'special/background.mp4' %}" type="video/mp4">
+</video>
+
+<audio id="love-song" loop>
+    <source src="{% static 'special/Suttum_Vizhi.mp3' %}" type="audio/mpeg">
+</audio>
+
+<div id="scene-1" style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 5;">
+    <h1 class="cinzel" style="font-size: 3rem;">Will you be my Valentine?</h1>
+    <p class="dancing">And my soulmate forever?</p>
+    <div>
+        <button class="btn-yes" onclick="startProposal()">YES! ❤️</button>
+    </div>
+</div>
+
+<div id="scene-2">
+    
+    <div class="polaroid-container" id="polaroid1">
+        <div class="polaroid-frame">
+            <img src="{% static 'special/first_month.jpeg' %}" class="polaroid-img" alt="First Month">
+            <div class="polaroid-caption">Where it all began...</div>
+        </div>
+    </div>
+
+    <p class="scroll-hint">Scroll down to open your gift... ↓</p>
+
+    <div class="ring-box-container" onclick="openTheBox(this)">
+        <div class="ring-box">
+            <div class="lid"></div>
+        </div>
+    </div>
+
+    <div id="final-reveal">
+        <div class="big-diamond">💍</div>
+        
+        <div class="scroll-container">
+            <div class="wax-seal">❤️</div>
+            {{ day.love_letter|linebreaks }}
+        </div>
+
+        <div class="polaroid-container" id="polaroid2" style="transform: rotate(3deg); margin-bottom: 50px;">
+            <div class="polaroid-frame">
+                <img src="{% static 'special/first_month_2.jpeg' %}" class="polaroid-img" alt="Us Again">
+                <div class="polaroid-caption">Forever to go.</div>
+            </div>
+        </div>
+
+        <h1 class="cinzel">Are you ready for tomorrow?</h1>
+        <button class="btn-yes" onclick="finishJourney()">YES! 🚀</button>
+    </div>
+</div>
+
+<script>
+    function startProposal() {
+        const audio = document.getElementById('love-song');
+        audio.volume = 0.7;
+        audio.play().catch(e => console.log("Audio play failed", e));
+        startRingRain();
+        document.getElementById('scene-1').style.display = 'none';
+        document.getElementById('scene-2').style.display = 'block';
+        setTimeout(() => {
+            const p1 = document.getElementById('polaroid1');
+            p1.style.opacity = 1;
+            p1.style.transform = 'translateY(0) rotate(-5deg)';
+        }, 500);
+    }
+
+    function openTheBox(container) {
+        const box = container.querySelector('.ring-box');
+        if(box.classList.contains('open')) return;
+        box.classList.add('open');
+        startRingRain();
+        document.querySelector('.scroll-hint').style.display = 'none';
+        
+        setTimeout(() => {
+            container.style.display = 'none';
+            const reveal = document.getElementById('final-reveal');
+            reveal.style.display = 'block';
+            setTimeout(() => reveal.style.opacity = 1, 100);
+            setTimeout(() => {
+                const p2 = document.getElementById('polaroid2');
+                p2.style.opacity = 1;
+                p2.style.transform = 'translateY(0) rotate(3deg)';
+            }, 1000);
+        }, 1200);
+    }
+
+    function finishJourney() {
+        alert("Stay tuned... Mission: Chocolate Day initiates tomorrow! 🍫");
+        window.location.href = "{% url 'home' %}";
+    }
+
+    function startRingRain() {
+        const symbols = ['💍', '💎', '💖', '✨'];
+        for(let i=0; i<40; i++) {
+            let el = document.createElement('div');
+            el.classList.add('falling-ring');
+            el.innerText = symbols[Math.floor(Math.random()*symbols.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random()*3+2) + 's';
+            document.body.appendChild(el);
+            gsap.to(el, { y: window.innerHeight + 200, rotation: Math.random()*360, duration: Math.random()*3 + 2, ease: 'power1.in', onComplete: () => el.remove() });
+        }
+    }
+</script>
+{% endblock %}

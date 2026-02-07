@@ -5,9 +5,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('valentine.urls')), # We will make this next
-] 
+    path('', include('valentine.urls')),
+]
 
-# This allows us to serve the photos and music in development
+# This allows us to serve BOTH Media (Uploads) and Static (Design Files)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # 👇 THIS IS THE NEW LINE YOU NEED!
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / 'static')

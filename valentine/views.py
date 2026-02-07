@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import ValentineDay
+from django.contrib.auth.decorators import login_required  # 👈 1. ADDED THIS IMPORT
 
+# 👇 2. ADDED THIS LOCK
+@login_required
 def home(request):
     # Get all the days you created in Admin
     # Sort them by date so Rose Day comes before Propose Day
@@ -20,6 +23,8 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+# 👇 3. ADDED THIS LOCK
+@login_required
 def unlock_day(request, day_id):
     day = get_object_or_404(ValentineDay, pk=day_id)
     today = timezone.now().date()

@@ -116,3 +116,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Media Files (User uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Login/Logout Redirects
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'

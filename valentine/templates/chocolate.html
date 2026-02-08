@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* --- 1. THE ATMOSPHERE --- */
+    body {
+        background: linear-gradient(135deg, #3e2723 0%, #5d4037 100%); /* Chocolate Gradient */
+        color: white;
+        font-family: 'Dancing Script', cursive;
+        overflow-x: hidden;
+    }
+
+    /* Falling Chocolates Animation */
+    .falling-choco {
+        position: fixed;
+        top: -50px;
+        font-size: 2rem;
+        animation: fall linear forwards;
+        z-index: 0; 
+        opacity: 0.8;
+    }
+    @keyframes fall {
+        to { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    .main-container {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 20px;
+        max-width: 600px;
+        margin: 0 auto;
+        padding-bottom: 100px;
+    }
+
+    h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px #000; }
+    
+    /* --- 2. THE GAME (Tic-Tac-Toe) --- */
+    #game-section {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        padding: 20px;
+        border-radius: 20px;
+        border: 2px solid #8d6e63;
+        margin-bottom: 50px;
+        transition: opacity 1s;
+    }
+
+    .score-board {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-around;
+        background: rgba(0,0,0,0.3);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .cell {
+        background: rgba(255,255,255,0.9);
+        height: 90px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #3e2723;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    }
+    .cell.taken { cursor: not-allowed; }
+
+    /* --- 3. THE LOSE MODAL --- */
+    #lose-modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 100;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    #lose-modal video {
+        width: 90%;
+        max-width: 400px;
+        border-radius: 15px;
+        border: 2px solid #ff4d6d;
+    }
+    .retry-btn {
+        margin-top: 20px;
+        padding: 10px 30px;
+        background: #ff4d6d;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* --- 4. THE MEMORIES (Polaroid Style) --- */
+    #memories-section {
+        display: none; /* Hidden until she wins 10 times */
+        animation: fadeIn 2s;
+    }
+
+    .polaroid {
+        background: white;
+        padding: 15px 15px 50px 15px; /* Bottom padding looks like polaroid */
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+        margin: 30px auto;
+        width: 85%;
+        max-width: 350px;
+        transition: transform 0.3s;
+        transform: rotate(-2deg);
+    }
+    .polaroid:nth-child(even) { transform: rotate(2deg); }
+    .polaroid:hover { transform: scale(1.05) rotate(0); z-index: 10; }
+
+    .polaroid video, .polaroid img {
+        width: 100%;
+        border: 1px solid #ddd;
+    }
+
+    .caption {
+        color: #3e2723;
+        font-family: 'Indie Flower', cursive;
+        font-size: 1.5rem;
+        margin-top: 10px;
+    }
+
+    /* --- 5. THE WRAPPER --- */
+    .wrapper-container {
+        margin-top: 60px;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+    .wrapper-container:hover { transform: scale(1.02); }
+
+    .foil-wrapper {
+        background: radial-gradient(circle, #d4af37 20%, #b8860b 100%);
+        padding: 40px;
+        border-radius: 5px;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 5px 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .foil-text {
+        font-size: 2rem;
+        color: #3e2723;
+        font-weight: bold;
+        transform: rotate(-5deg);
+        border: 2px dashed #3e2723;
+        padding: 10px;
+        display: inline-block;
+    }
+
+    .secret-message {
+        display: none;
+        background: #fff8e1;
+        color: #3e2723;
+        padding: 30px;
+        border-radius: 10px;
+        font-size: 1.3rem;
+        line-height: 1.6;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<audio id="bg-music" loop>
+    <source src="{% static 'music/chocolate_song.mp3' %}" type="audio/mpeg">
+</audio>
+
+<div class="main-container">
+    
+    <div id="game-section">
+        <h1>Win Your Chocolates! 🍫</h1>
+        <p>Win 10 times to unlock the box!</p>
+        
+        <div class="score-board">
+            <div>Mirasol: <span id="player-score">0</span></div>
+            <div>Computer: <span id="comp-score">1</span></div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+        <p id="game-status" style="margin-top: 15px;">Your Turn (X)</p>
+    </div>
+
+    <div id="lose-modal">
+        <h2 style="color:white; margin-bottom:10px;">Oops! You Lost! 😜</h2>
+        <video id="lose-video" controls>
+            <source src="{% static 'videos/choco_lose.mp4' %}" type="video/mp4">
+        </video>
+        <button class="retry-btn" onclick="retryGame()">Try Again</button>
+    </div>
+
+    <div id="memories-section">
+        <h1>You Won! 🎉</h1>
+        <p>Here is your sweet reward...</p>
+
+        <div class="polaroid">
+            <video controls>
+                <source src="{% static 'videos/choco_mem1.mp4' %}" type="video/mp4">
+            </video>
+            <div class="caption">Sweet Memory #1 ❤️</div>
+        </div>
+
+        <div class="polaroid">
+            <video controls>
+                <source src="{% static 'videos/choco_mem2.mp4' %}" type="video/mp4">
+            </video>
+            <div class="caption">Sweet Memory #2 😘</div>
+        </div>
+
+        <div class="polaroid">
+            <img src="{% static 'images/choco_pic.jpeg' %}" alt="Our Photo">
+            <div class="caption">Us Forever 🍫</div>
+        </div>
+
+        <div class="wrapper-container" onclick="openWrapper(this)">
+            <div class="foil-wrapper">
+                <div class="foil-text">OPEN ME 🍫</div>
+            </div>
+            <div class="secret-message">
+                <h2>My Dearest Mirasol,</h2>
+                <p>
+                    Just like chocolate, you make everything in my life better. 
+                    You are my sweetness, my happiness, and my favorite craving.
+                    <br><br>
+                    I love you more than all the chocolates in the world!
+                    <br><br>
+                    Happy Chocolate Day! ❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- 1. FALLING CHOCOLATES ---
+    function createChoco() {
+        const choco = document.createElement('div');
+        choco.classList.add('falling-choco');
+        choco.innerText = Math.random() > 0.5 ? '🍫' : '🍬';
+        choco.style.left = Math.random() * 100 + 'vw';
+        choco.style.animationDuration = Math.random() * 2 + 3 + 's';
+        document.body.appendChild(choco);
+        setTimeout(() => choco.remove(), 5000);
+    }
+    setInterval(createChoco, 300);
+
+    // --- 2. GAME LOGIC ---
+    const grid = document.getElementById('grid');
+    const status = document.getElementById('game-status');
+    const pScoreEl = document.getElementById('player-score');
+    const loseModal = document.getElementById('lose-modal');
+    const loseVideo = document.getElementById('lose-video');
+    
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+    let playerScore = 0;
+    const targetScore = 10; 
+
+    function initBoard() {
+        grid.innerHTML = '';
+        board = ['', '', '', '', '', '', '', '', ''];
+        gameActive = true;
+        status.innerText = "Your Turn (X)";
+        
+        for (let i = 0; i < 9; i++) {
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-index', i);
+            cell.addEventListener('click', handleCellClick);
+            grid.appendChild(cell);
+        }
+    }
+
+    function handleCellClick(e) {
+        const index = e.target.getAttribute('data-index');
+        if (board[index] !== '' || !gameActive) return;
+
+        // Player Move
+        board[index] = 'X';
+        e.target.innerText = 'X';
+        e.target.style.color = '#d81b60';
+        
+        if (checkWin('X')) {
+            endGame('win');
+            return;
+        }
+        if (!board.includes('')) {
+            endGame('draw');
+            return;
+        }
+
+        // Computer Move
+        status.innerText = "Thinking...";
+        setTimeout(() => {
+            let emptyIndices = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+            // Random move (Easy mode so she wins, but CAN lose if unlucky)
+            let randomMove = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            
+            board[randomMove] = 'O';
+            let cell = document.querySelector(`.cell[data-index='${randomMove}']`);
+            cell.innerText = 'O';
+            
+            if (checkWin('O')) {
+                endGame('lose');
+            } else {
+                status.innerText = "Your Turn (X)";
+            }
+        }, 400);
+    }
+
+    function checkWin(player) {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        return wins.some(combo => combo.every(idx => board[idx] === player));
+    }
+
+    function endGame(result) {
+        gameActive = false;
+        if (result === 'win') {
+            playerScore++;
+            pScoreEl.innerText = playerScore;
+            status.innerText = "Nice! " + (targetScore - playerScore) + " more to go!";
+            
+            if (playerScore >= targetScore) {
+                // VICTORY!
+                setTimeout(() => {
+                    document.getElementById('game-section').style.display = 'none';
+                    document.getElementById('memories-section').style.display = 'block';
+                    document.getElementById('bg-music').play();
+                }, 1000);
+            } else {
+                setTimeout(initBoard, 800);
+            }
+
+        } else if (result === 'lose') {
+            // SHOW LOSE VIDEO
+            loseModal.style.display = "flex";
+            loseVideo.play();
+            
+        } else {
+            status.innerText = "Draw! Again!";
+            setTimeout(initBoard, 1000);
+        }
+    }
+
+    function retryGame() {
+        loseVideo.pause();
+        loseModal.style.display = "none";
+        initBoard();
+    }
+
+    // --- 3. WRAPPER LOGIC ---
+    function openWrapper(element) {
+        const foil = element.querySelector('.foil-wrapper');
+        const msg = element.querySelector('.secret-message');
+        
+        foil.style.transform = "scale(0) rotate(20deg)";
+        foil.style.opacity = "0";
+        setTimeout(() => {
+            foil.style.display = "none";
+            msg.style.display = "block";
+        }, 300);
+    }
+
+    initBoard();
+</script>
+{% endblock %}

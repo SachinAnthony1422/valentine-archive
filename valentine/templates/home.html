@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %} 
 
 {% block content %}
 <style>
@@ -172,13 +173,12 @@
         font-size: 1.2rem;
         box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
     ">
-        ❤️ UNLOCKED: {{ score }} / 8
+        ❤️ UNLOCKED: {{ score }} / {{ days.count }}
     </div>
 </div>
 
 <div class="timeline-container">
     {% for day in days %}
-        {% load humanize %} 
         
         {% if day.date_to_unlock <= today %}
         
@@ -190,6 +190,15 @@
             </span>
             
             <h2 style="margin: 10px 0; font-size: 2rem; color: #fff; font-family: 'Cinzel', serif;">
+                {% if "Rose" in day.title %}🌹
+                {% elif "Propose" in day.title %}💍
+                {% elif "Chocolate" in day.title %}🍫
+                {% elif "Teddy" in day.title %}🧸
+                {% elif "Promise" in day.title %}🤝
+                {% elif "Hug" in day.title %}🤗
+                {% elif "Kiss" in day.title %}💋
+                {% else %}❤️{% endif %}
+                
                 {{ day.title }}
             </h2>
             <p style="opacity: 0.8; margin-bottom: 20px; font-family: 'Courier New', monospace;">
@@ -201,9 +210,9 @@
             </a>
         </div>
 
-    {% else %}
+        {% else %}
 
-    <div class="timeline-card locked-card">
+        <div class="timeline-card locked-card">
             <div class="timeline-dot"></div>
 
             <span class="date-badge" style="background: #444; color: #aaa; box-shadow: none;">
@@ -211,7 +220,7 @@
             </span>
 
             <h2 style="margin: 10px 0; font-size: 2rem; color: #777; font-family: 'Cinzel', serif;">
-                {{ day.title }}
+                🔒 {{ day.title }}
             </h2>
             
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; color: #ff4d6d; opacity: 0.7;">
@@ -222,7 +231,7 @@
             </div>
         </div>
 
-    {% endif %}
+        {% endif %}
 
     {% empty %}
         <div style="text-align: center; padding: 50px; color: #fff;">

@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from .models import ValentineDay
 from django.contrib.auth.decorators import login_required
-from datetime import timedelta  # 👈 1. ADD THIS IMPORT
+from datetime import timedelta  # 👈 1. KEEP THIS IMPORT
 
 @login_required
 def home(request):
@@ -36,12 +36,18 @@ def unlock_day(request, day_id):
         user_answer = request.POST.get('answer', '').strip().lower()
         correct_answer = day.correct_answer.strip().lower()
         
+        # SECURITY CHECK 2: Is the password right?
         if user_answer == correct_answer:
             
             # --- SPECIAL: PROPOSE DAY LOGIC ---
             if "Propose" in day.title:
                 return render(request, 'propose.html', {'day': day})
 
+            # --- SPECIAL: CHOCOLATE DAY LOGIC ---
+            elif "Chocolate" in day.title:
+                return render(request, 'chocolate.html', {'day': day})
+
+            # SUCCESS: Default for Rose Day, Teddy Day, etc.
             return render(request, 'love_letter.html', {'day': day})
             
         else:

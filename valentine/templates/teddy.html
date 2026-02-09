@@ -1,0 +1,385 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teddy Bear Day 🧸</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧸</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* --- AESTHETICS --- */
+        body {
+            margin: 0; padding: 0;
+            background: #e0f7fa; /* Light sky blue */
+            font-family: 'Nunito', sans-serif;
+            color: #5d4037;
+            overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: #81d4fa; 
+            text-shadow: 2px 2px #0288d1;
+            margin-top: 20px; font-size: 2.5rem; text-align: center;
+        }
+
+        .container {
+            text-align: center; width: 95%; max-width: 600px;
+            margin-top: 20px; position: relative; padding-bottom: 50px;
+        }
+
+        /* --- QUESTION BOX --- */
+        .question-box {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        .btn {
+            background: #ffccbc; border: none; padding: 15px 30px;
+            font-size: 1.2rem; border-radius: 50px; cursor: pointer;
+            margin: 10px; font-family: 'Fredoka One', cursive; color: #fff;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1); transition: transform 0.1s;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.1); }
+        .btn-yes { background: #4fc3f7; }
+        .btn-no { background: #bcaaa4; }
+
+        /* --- HIDE & SEEK GAME CSS --- */
+        #game-section { display: none; }
+
+        .score-board {
+            font-size: 2rem; margin-bottom: 20px;
+            font-family: 'Fredoka One', cursive; color: #0277bd;
+        }
+
+        .grid {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
+        }
+
+        .hole {
+            width: 110px; height: 110px; /* Bigger holes */
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        /* The Cloud */
+        .cloud {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: white; border-radius: 50px 50px 0 0;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+        .cloud::after, .cloud::before {
+            content: ''; position: absolute; background: white; border-radius: 50%;
+        }
+        .cloud::after { width: 50px; height: 50px; top: -25px; left: 10px; }
+        .cloud::before { width: 40px; height: 40px; top: -15px; right: 10px; }
+
+        /* The Teddy - BIGGER NOW */
+        .teddy-mole {
+            font-size: 80px; /* Huge Teddy! Easier to click */
+            position: absolute;
+            top: 100%;
+            left: 50%; transform: translateX(-50%);
+            transition: top 0.4s;
+            z-index: 1;
+        }
+
+        .hole.up .teddy-mole { top: -10px; } /* Pops up higher */
+
+        /* --- REWARD & POLAROIDS --- */
+        #reward-section { display: none; margin-top: 30px; }
+        #gift-trigger {
+            font-size: 100px; cursor: pointer;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+        .polaroid {
+            background: white; padding: 15px 15px 60px 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15); margin: 40px auto;
+            width: 80%; max-width: 350px; opacity: 0;
+        }
+        .polaroid img { width: 100%; border-radius: 5px; }
+        
+        .pop-out { animation: popUp 0.8s forwards; }
+        .fade-in-late { animation: fadeIn 1s ease forwards; animation-delay: 0.8s; transform: rotate(2deg); }
+        @keyframes popUp { from { transform: scale(0) rotate(-10deg); opacity: 0; } to { transform: scale(1) rotate(-3deg); opacity: 1; } }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .caption { font-family: 'Caveat', cursive; font-size: 1.8rem; color: #555; margin-top: 20px; line-height: 1.2; }
+        .final-message { font-family: 'Caveat', cursive; font-size: 2rem; color: #0277bd; margin-top: 40px; }
+
+        /* --- TIC TAC TOE (Failure Path) --- */
+        #game-area { display: none; flex-direction: column; align-items: center; }
+        .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 10px; margin-top: 20px; }
+        .cell {
+            width: 80px; height: 80px; background: #fff; border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 2.5rem;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; font-family: 'Fredoka One', cursive; color: #8d6e63;
+        }
+        .sad-emoji { font-size: 5rem; animation: shake 0.5s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            50% { transform: translate(-3px, 0px) rotate(1deg); }
+            100% { transform: translate(1px, -1px) rotate(1deg); }
+        }
+
+        /* --- VIDEO MODAL --- */
+        #video-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2000; justify-content: center; align-items: center; }
+        video { width: 100%; max-width: 600px; }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="{% static 'music/teddy_music.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        <h1>HAPPY TEDDY DAY, MIRASOL! 🧸</h1>
+        
+        <div class="question-box" id="q-box">
+            <h2>Am I your Teddy Bear? 🥺</h2>
+            <button class="btn btn-yes" onclick="startSeekGame()">YES! ❤️</button>
+            <button class="btn btn-no" onclick="handleNo()">No 😒</button>
+        </div>
+
+        <div id="game-section">
+            <div class="score-board">Hugs: <span id="score">0</span> / 5</div>
+            
+            <div class="grid">
+                <div class="hole" id="h1" onclick="bonk(event)"><div class="teddy-mole">🧸</div><div class="cloud"></div></div>
+                <div class="hole" id="h2" onclick="bonk(event)"><div class="teddy-mole">🧸</div><div class="cloud"></div></div>
+                <div class="hole" id="h3" onclick="bonk(event)"><div class="teddy-mole">🧸</div><div class="cloud"></div></div>
+                <div class="hole" id="h4" onclick="bonk(event)"><div class="teddy-mole">🧸</div><div class="cloud"></div></div>
+                <div class="hole" id="h5" onclick="bonk(event)"><div class="teddy-mole">🧸</div><div class="cloud"></div></div>
+                <div class="hole" id="h6" onclick="bonk(event)"><div class="teddy-mole">🧸</div><div class="cloud"></div></div>
+            </div>
+            
+            <p style="margin-top: 20px;">Tap 5 Teddies to win!</p>
+        </div>
+
+        <div id="reward-section">
+            <div id="gift-stage">
+                <h2>You found me! 👇</h2>
+                <div id="gift-trigger" onclick="openGift()">🎁</div>
+            </div>
+
+            <div id="final-rewards" style="display: none;">
+                <div class="polaroid" id="pic1">
+                    <img src="{% static 'images/hug_pic.jpeg' %}" alt="Us Hugging">
+                    <div class="caption">In your arms is my favorite place in the whole world. Home. ❤️</div>
+                </div>
+
+                <div class="polaroid fade-in-late">
+                    <img src="{% static 'images/real_teddy.jpeg' %}" alt="Real Teddy">
+                    <div class="caption">Like this teddy, I promise to always be there to comfort you, forever. 🧸</div>
+                </div>
+                <p class="final-message">You are my ultimate source of comfort and joy. Happy Teddy Day! ❤️✨</p>
+            </div>
+        </div>
+
+        <div id="game-area">
+            <div class="sad-emoji">😭😭😭</div>
+            <h2>You broke my heart! 💔</h2>
+            <p>Win 2 games to fix it!</p>
+            <h3 id="score-text">Win Count: 0 / 2</h3>
+            <div class="board" id="board">
+                <div class="cell" onclick="makeMove(0)"></div>
+                <div class="cell" onclick="makeMove(1)"></div>
+                <div class="cell" onclick="makeMove(2)"></div>
+                <div class="cell" onclick="makeMove(3)"></div>
+                <div class="cell" onclick="makeMove(4)"></div>
+                <div class="cell" onclick="makeMove(5)"></div>
+                <div class="cell" onclick="makeMove(6)"></div>
+                <div class="cell" onclick="makeMove(7)"></div>
+                <div class="cell" onclick="makeMove(8)"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="video-modal">
+        <video id="lose-video" controls>
+            <source src="{% static 'videos/choco_lose.mp4' %}" type="video/mp4">
+        </video>
+    </div>
+
+    <script>
+        const music = document.getElementById('bg-music');
+        
+        // --- HIDE AND SEEK LOGIC ---
+        const holes = document.querySelectorAll('.hole');
+        const scoreBoard = document.getElementById('score');
+        let lastHole;
+        let timeUp = false;
+        let score = 0;
+
+        function startSeekGame() {
+            music.play().catch(e => console.log("Audio needs interaction"));
+            document.getElementById('q-box').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-section').style.display = 'block';
+            
+            Swal.fire({
+                title: 'Catch Me! 🧸',
+                text: 'Catch just 5 teddies to get your gift!',
+                icon: 'info',
+                confirmButtonText: "Let's Go!"
+            }).then(() => {
+                score = 0;
+                scoreBoard.textContent = 0;
+                timeUp = false;
+                peep();
+            });
+        }
+
+        // SLOWER TIMING HERE
+        function randomTime(min, max) {
+            return Math.round(Math.random() * (max - min) + min);
+        }
+
+        function randomHole(holes) {
+            const idx = Math.floor(Math.random() * holes.length);
+            const hole = holes[idx];
+            if (hole === lastHole) {
+                return randomHole(holes);
+            }
+            lastHole = hole;
+            return hole;
+        }
+
+        function peep() {
+            // CHANGED SPEED: 1.5 seconds to 2.5 seconds (Very Easy)
+            const time = randomTime(1500, 2500); 
+            const hole = randomHole(holes);
+            hole.classList.add('up');
+            
+            setTimeout(() => {
+                hole.classList.remove('up');
+                // Target score is now 5
+                if (!timeUp && score < 5) peep();
+            }, time);
+        }
+
+        function bonk(e) {
+            if(!e.isTrusted) return; 
+            if (!e.currentTarget.classList.contains('up')) return;
+
+            score++;
+            e.currentTarget.classList.remove('up');
+            scoreBoard.textContent = score;
+            
+            const teddy = e.currentTarget.querySelector('.teddy-mole');
+            teddy.innerText = "💖"; 
+            setTimeout(() => teddy.innerText = "🧸", 400);
+
+            // Win at 5
+            if (score >= 5) {
+                timeUp = true;
+                winGame();
+            }
+        }
+
+        function winGame() {
+            setTimeout(() => {
+                document.getElementById('game-section').style.display = 'none';
+                document.getElementById('reward-section').style.display = 'block';
+                Swal.fire({
+                    title: 'You Won! 🎉',
+                    text: 'You are the best teddy catcher!',
+                    icon: 'success'
+                });
+            }, 500);
+        }
+
+        // --- REWARD LOGIC ---
+        function openGift() {
+            document.getElementById('gift-stage').style.display = 'none';
+            document.getElementById('final-rewards').style.display = 'block';
+            document.getElementById('pic1').classList.add('pop-out');
+        }
+
+        // --- TIC TAC TOE LOGIC (Standard) ---
+        function handleNo() {
+            document.getElementById('q-box').style.display = 'none';
+            document.getElementById('game-area').style.display = 'flex';
+            Swal.fire({ title: 'Ouch! 💔', text: 'Win 2 games to make me happy again!', icon: 'error' });
+        }
+
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let tttWins = 0;
+        let tttHard = 0;
+
+        function makeMove(index) {
+            if (board[index] === '' && gameActive) {
+                board[index] = 'X'; renderBoard();
+                if (checkTTTWin('X')) { handleTTTWin(); }
+                else if (!board.includes('')) { Swal.fire("Draw! Try again."); resetBoard(); }
+                else { gameActive = false; setTimeout(computerMove, 500); }
+            }
+        }
+
+        function computerMove() {
+            let move = -1;
+            if (tttHard === 1) move = findBestMove();
+            if (move === -1) {
+                let empty = board.map((e, i) => e === '' ? i : null).filter(e => e !== null);
+                move = empty[Math.floor(Math.random() * empty.length)];
+            }
+            if (move !== undefined) {
+                board[move] = 'O'; renderBoard();
+                if (checkTTTWin('O')) handleLoss(); else gameActive = true;
+            }
+        }
+        
+        function findBestMove() {
+             for (let i=0; i<9; i++) { if(board[i]=='') { board[i]='O'; if(checkTTTWin('O')){board[i]='';return i;} board[i]=''; } }
+             for (let i=0; i<9; i++) { if(board[i]=='') { board[i]='X'; if(checkTTTWin('X')){board[i]='';return i;} board[i]=''; } }
+             return -1;
+        }
+
+        function renderBoard() {
+            const cells = document.getElementsByClassName('cell');
+            for(let i=0; i<9; i++) { cells[i].innerText = board[i]; cells[i].style.color = board[i] === 'X' ? '#ff7043' : '#8d6e63'; }
+        }
+
+        function checkTTTWin(p) {
+            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return w.some(c => board[c[0]] === p && board[c[1]] === p && board[c[2]] === p);
+        }
+
+        function handleTTTWin() {
+            tttWins++;
+            document.getElementById('score-text').innerText = `Win Count: ${tttWins} / 2`;
+            if (tttWins === 1) {
+                Swal.fire('Nice! One more game!').then(() => { tttHard = 1; resetBoard(); });
+            } else {
+                Swal.fire({title: 'Forgiven! ❤️', text: 'Now go catch your teddies!', icon: 'success'}).then(() => {
+                    startSeekGame(); 
+                });
+            }
+        }
+
+        function handleLoss() {
+            document.getElementById('video-modal').style.display = 'flex';
+            document.getElementById('lose-video').play();
+            document.getElementById('lose-video').onended = () => location.reload();
+        }
+
+        function resetBoard() { board = ['', '', '', '', '', '', '', '', '']; gameActive = true; renderBoard(); }
+
+    </script>
+</body>
+</html>

@@ -47,11 +47,16 @@ def unlock_day(request, day_id):
             elif "Chocolate" in day.title:
                 return render(request, 'chocolate.html', {'day': day})
 
-            # --- SPECIAL: TEDDY DAY LOGIC (ADDED THIS!) ---
+            # --- SPECIAL: TEDDY DAY LOGIC ---
             elif "Teddy" in day.title:
                 return render(request, 'teddy.html', {'day': day})
 
-            # SUCCESS: Default for Rose Day, Promise Day, etc.
+            # --- SPECIAL: PROMISE DAY LOGIC (✅ ADDED THIS!) ---
+            elif "Promise" in day.title:
+                # We pass 'today' so the certificate date is correct
+                return render(request, 'promise.html', {'day': day, 'today': today})
+
+            # SUCCESS: Default for Rose Day, etc.
             return render(request, 'love_letter.html', {'day': day})
             
         else:
@@ -59,6 +64,10 @@ def unlock_day(request, day_id):
             
     return render(request, 'quiz.html', {'day': day})
 
-# 👇 MOVED THIS OUTSIDE (It must be on the left margin)
+# Standalone views (kept as requested)
 def teddy(request):
     return render(request, 'teddy.html')
+
+def promise(request):
+    today = (timezone.now() + timedelta(hours=5, minutes=30)).date() # Ensure India time consistency
+    return render(request, 'promise.html', {'today': today})

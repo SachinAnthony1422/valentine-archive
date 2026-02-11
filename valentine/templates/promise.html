@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Promise 🤞</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700&family=Playfair+Display:wght@700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background: #1a1a1d;
+            font-family: 'Nunito', sans-serif;
+            color: #333;
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- SCREEN 1: THE INTRO (WITH VIDEO BG) --- */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; text-align: center; z-index: 200; padding: 20px;
+            overflow: hidden;
+        }
+
+        /* THE BACKGROUND VIDEO */
+        #bg-video {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -2;
+            filter: brightness(0.6); /* Darkens video so text pops */
+        }
+
+        .fade-text {
+            font-family: 'Playfair Display', serif; font-size: 2rem; line-height: 1.6;
+            color: #fff; max-width: 600px; margin-bottom: 50px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            animation: fadeIn 3s forwards;
+            position: relative; z-index: 10;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-group { display: flex; gap: 20px; position: relative; z-index: 10; }
+        
+        .btn-choice {
+            padding: 15px 40px; font-size: 1.5rem; border: none; border-radius: 50px;
+            cursor: pointer; transition: transform 0.2s; font-family: 'Cinzel', serif;
+        }
+        .btn-yes { background: #e91e63; color: white; box-shadow: 0 0 20px rgba(233, 30, 99, 0.5); }
+        .btn-no { background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(5px); border: 1px solid white; }
+        .btn-choice:hover { transform: scale(1.1); }
+
+        /* --- HEART RAIN --- */
+        .heart-drop {
+            position: fixed; top: -50px; font-size: 30px; 
+            animation: fall linear forwards; z-index: 150; color: #ff4081; pointer-events: none;
+        }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        /* --- MAIN SCROLL CONTENT --- */
+        #main-content {
+            display: none; width: 100%; max-width: 600px;
+            padding: 20px; align-items: center; flex-direction: column;
+            opacity: 0; animation: fadeInContent 2s forwards; animation-delay: 1s;
+        }
+        @keyframes fadeInContent { to { opacity: 1; } }
+
+        .video-container {
+            width: 100%; margin-bottom: -20px; z-index: 10;
+            border-radius: 15px 15px 0 0; overflow: hidden;
+            border: 5px solid #d4af37; border-bottom: none;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+        video.content-vid { width: 100%; display: block; }
+
+        #printable-contract {
+            background: #fdfbf7;
+            width: 100%; padding: 50px 30px;
+            box-sizing: border-box; position: relative; text-align: center;
+            border: 5px solid #d4af37; border-top: none;
+            border-radius: 0 0 15px 15px; box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+        
+        #printable-contract::before {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+            opacity: 0.5; pointer-events: none;
+        }
+
+        h1 { 
+            font-family: 'Cinzel', serif; color: #2c3e50; font-size: 2.2rem;
+            margin-bottom: 10px; border-bottom: 2px solid #d4af37; display: inline-block; padding-bottom: 10px;
+        }
+        .subtitle { color: #7f8c8d; font-size: 1rem; margin-bottom: 40px; font-style: italic; }
+
+        .promise-list { list-style: none; padding: 0; text-align: left; }
+        .promise-list li {
+            margin-bottom: 20px; font-size: 1.1rem; line-height: 1.5;
+            display: flex; align-items: flex-start;
+        }
+        .promise-list li::before { content: '❤️'; margin-right: 15px; color: #e91e63; font-size: 1.2rem; }
+
+        .signature-section {
+            margin-top: 50px; padding-top: 20px; position: relative; border-top: 2px dashed #bbb;
+        }
+        .signature-display {
+            font-family: 'Dancing Script', cursive; font-size: 3rem; color: #000080;
+            min-height: 60px; transform: rotate(-3deg); margin-top: 10px;
+        }
+
+        .controls { width: 100%; margin-top: 30px; text-align: center; color: white; padding-bottom: 50px; }
+        
+        .input-name {
+            width: 80%; padding: 15px; font-size: 1.2rem; border-radius: 10px;
+            border: 2px solid #d4af37; outline: none; text-align: center;
+            background: rgba(255,255,255,0.9); margin-bottom: 20px;
+        }
+
+        #decrypt-game { display: none; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 15px; border: 1px solid #d4af37; }
+        .code-text { font-family: 'Courier New', monospace; font-size: 1.1rem; color: #ffeb3b; margin: 10px 0; letter-spacing: 1px; }
+        
+        .btn-download {
+            background: #27ae60; color: white; padding: 15px 30px; border: none;
+            border-radius: 50px; font-size: 1.2rem; cursor: pointer; width: 80%;
+            display: none; margin: 20px auto; box-shadow: 0 0 15px #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="{% static 'music/promise_music.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div id="intro-screen">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="{% static 'videos/intro_bg.mp4' %}" type="video/mp4">
+        </video>
+        
+        <div class="fade-text">
+            "I promise to be with you always, forever, no matter the difficulties.
+            <br><br>
+            I will never leave your hand."
+        </div>
+        <h2 style="color: white; font-family: 'Dancing Script'; margin-bottom: 30px; text-shadow: 0 2px 5px black; position: relative; z-index: 10;">Will you promise me too?</h2>
+        <div class="btn-group">
+            <button class="btn-choice btn-yes" onclick="handleYes()">YES ❤️</button>
+            <button class="btn-choice btn-no" onclick="handleNo()">No 😢</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        
+        <div class="video-container">
+            <video class="content-vid" controls autoplay muted loop>
+                <source src="{% static 'videos/promises.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+
+        <div id="printable-contract">
+            <h1>Official Promise Scroll</h1>
+            <div class="subtitle">Sealed with Love • {{ today }}</div>
+
+            <ul class="promise-list">
+                <li><strong>I will not let you cry.</strong><br>I promise to wipe your tears and replace them with smiles.</li>
+                <li><strong>I will not give you pain.</strong><br>I promise to be your peace, not your problem.</li>
+                <li><strong>I will show you love.</strong><br>In every small action, every single day.</li>
+                <li><strong>I will be with you always.</strong><br>Through the storms and the sunshine.</li>
+                <li><strong>I will stand beside you.</strong><br>As your partner, your best friend, and your soulmate.</li>
+            </ul>
+
+            <div class="signature-section">
+                <p style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px;">Signed by my love:</p>
+                <div id="signature-output" class="signature-display"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div id="sign-step">
+                <h3>Step 1: Sign your name</h3>
+                <input type="text" id="nameInput" class="input-name" placeholder="Type name here..." oninput="updateSignature()">
+                <button class="btn-choice btn-yes" style="font-size: 1rem;" onclick="showDecrypt()">I Signed It! ✍️</button>
+            </div>
+
+            <div id="decrypt-game">
+                <h3>Step 2: Security Check 🔐</h3>
+                <p>Decrypt the Love Language to download:</p>
+                
+                <div class="code-text">H@PPY PR💍MISE D@Y & I L❤️VE Y🥰U</div>
+                
+                <input type="text" id="decryptInput" class="input-name" placeholder="Type the answer..." style="margin-top: 10px;">
+                <button class="btn-choice btn-yes" style="font-size: 1rem;" onclick="checkCode()">Unlock Download 🔓</button>
+            </div>
+
+            <button class="btn-download" id="dl-btn" onclick="downloadContract()">📥 Download Contract</button>
+        </div>
+
+    </div>
+
+    <script>
+        const music = document.getElementById('bg-music');
+
+        function handleYes() {
+            music.play().catch(e => console.log("Music interaction needed"));
+            startHeartRain();
+            
+            // Fade out intro, show main content
+            const intro = document.getElementById('intro-screen');
+            intro.style.transition = "opacity 1s";
+            intro.style.opacity = 0;
+            
+            setTimeout(() => {
+                intro.style.display = 'none';
+                document.getElementById('main-content').style.display = 'flex';
+            }, 1000);
+        }
+
+        function handleNo() {
+            Swal.fire({
+                title: 'Try Again 🥺',
+                text: 'Please? I really love you!',
+                icon: 'warning',
+                confirmButtonColor: '#e91e63'
+            });
+        }
+
+        function startHeartRain() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.classList.add('heart-drop');
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 5000);
+            }, 200);
+        }
+
+        function updateSignature() {
+            document.getElementById('signature-output').innerText = document.getElementById('nameInput').value;
+        }
+
+        function showDecrypt() {
+            const name = document.getElementById('nameInput').value;
+            if(name.length < 2) { Swal.fire("Please sign first! ✍️"); return; }
+            document.getElementById('sign-step').style.display = 'none';
+            document.getElementById('decrypt-game').style.display = 'block';
+        }
+
+        function checkCode() {
+            const answer = document.getElementById('decryptInput').value.toUpperCase().trim();
+            if (answer.includes("HAPPY PROMISE DAY") && answer.includes("LOVE YOU")) {
+                Swal.fire({ title: 'Correct! 🎉', text: 'You speak my love language!', icon: 'success' });
+                document.getElementById('decrypt-game').style.display = 'none';
+                document.getElementById('dl-btn').style.display = 'block';
+            } else {
+                Swal.fire({ title: 'Wrong Code ❌', text: 'Hint: Replace emojis/symbols with letters!', icon: 'error' });
+            }
+        }
+
+        function downloadContract() {
+            const contract = document.getElementById('printable-contract');
+            const btn = document.getElementById('dl-btn');
+            btn.innerText = "Generating PDF...";
+            html2canvas(contract, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Official_Promise_Scroll.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                btn.innerText = "Downloaded! Send it to me ❤️";
+            });
+        }
+    </script>
+</body>
+</html>

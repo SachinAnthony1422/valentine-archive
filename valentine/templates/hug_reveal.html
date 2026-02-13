@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pick a Door 🚪</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            margin: 0; 
+            /* 👇 NEW ROMANTIC BACKGROUND LOGIC */
+            background: url("{% static 'images/hug_bg.png' %}") no-repeat center center fixed; 
+            background-size: cover;
+            font-family: 'Nunito', sans-serif; 
+            text-align: center; 
+            overflow-x: hidden; 
+            color: #3e2723; /* Dark brown text looks better on nature bg */
+        }
+
+        /* Overlay to ensure text is readable */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 248, 240, 0.6); /* Soft cream overlay */
+            z-index: -1;
+        }
+        
+        /* --- DOORS SECTION --- */
+        #door-section { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .door-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .door {
+            width: 100px; height: 180px; background: #8d6e63; border: 5px solid #5d4037;
+            cursor: pointer; position: relative; border-radius: 10px 10px 0 0;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.4); transition: transform 0.3s;
+        }
+        .door:hover { transform: scale(1.05); }
+        .knob { width: 10px; height: 10px; background: gold; border-radius: 50%; position: absolute; top: 50%; right: 10px; box-shadow: 0 0 5px gold; }
+        
+        /* --- HUG CONTENT (Hidden) --- */
+        #hug-content { display: none; padding-bottom: 50px; opacity: 0; animation: fadeIn 2s forwards; }
+        
+        h1 { 
+            font-family: 'Dancing Script', cursive; font-size: 3.5rem; margin-bottom: 10px; 
+            color: #d84315; text-shadow: 2px 2px 0px white; 
+        }
+
+        /* TEDDY */
+        .teddy-container { 
+            margin-top: 50px; cursor: pointer; display: inline-block; position: relative; 
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); /* Better shadow for bg */
+        }
+        .teddy-img { font-size: 150px; line-height: 1; }
+        .click-hint {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem;
+            animation: bounce 1s infinite; pointer-events: none; box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* POLAROIDS */
+        .polaroid {
+            background: white; padding: 15px 15px 50px 15px; width: 80%; max-width: 300px;
+            margin: 30px auto; box-shadow: 0 15px 40px rgba(0,0,0,0.3); transform: rotate(-3deg);
+        }
+        .polaroid img { width: 100%; border-radius: 5px; }
+        .caption { font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: #555; margin-top: 10px; }
+
+        /* MYSTERY BOX */
+        .mystery-box {
+            width: 100px; height: 100px; background: #ffab91; margin: 40px auto;
+            display: flex; justify-content: center; align-items: center; font-size: 3rem;
+            cursor: pointer; border-radius: 10px; animation: bounce 2s infinite;
+            box-shadow: 0 10px 20px rgba(255, 87, 34, 0.4);
+        }
+
+        /* SCROLL LETTER */
+        .scroll-container {
+            width: 90%; max-width: 400px; height: 0; overflow: hidden; margin: 20px auto;
+            background: #fff3e0; border: 2px solid #d4af37; border-radius: 5px;
+            transition: height 2s ease; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .scroll-text { padding: 20px; font-family: 'Dancing Script', cursive; font-size: 1.3rem; }
+        .highlight { background: yellow; cursor: pointer; padding: 0 5px; font-weight: bold; animation: pulse 1.5s infinite; }
+
+        .next-btn {
+            background: #e91e63; color: white; padding: 15px 40px; border: none;
+            border-radius: 50px; font-size: 1.3rem; cursor: pointer; margin-top: 50px;
+            text-decoration: none; display: inline-block; 
+            box-shadow: 0 5px 25px rgba(233, 30, 99, 0.6);
+            font-family: 'Dancing Script', cursive; transition: transform 0.2s;
+        }
+        .next-btn:hover { transform: scale(1.1); }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 235, 59, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 235, 59, 0); } }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="{% static 'music/hug_music.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div id="door-section">
+        <h1>Pick a Door... 🚪</h1>
+        <div class="door-container">
+            <div class="door" onclick="wrongDoor()"> <div class="knob"></div> <div style="color:white; margin-top:20px;">1</div> </div>
+            <div class="door" onclick="rightDoor()"> <div class="knob"></div> <div style="color:white; margin-top:20px;">2</div> </div>
+            <div class="door" onclick="wrongDoor()"> <div class="knob"></div> <div style="color:white; margin-top:20px;">3</div> </div>
+        </div>
+    </div>
+
+    <div id="hug-content">
+        <h1>Happy Hug Day! 🤗</h1>
+        <p style="font-size: 1.2rem; font-weight: bold;">You missed it, but I didn't forget!</p>
+
+        <div class="teddy-container" onclick="showHugPic()">
+            <div class="teddy-img">🧸</div>
+            <div class="click-hint">Click Belly!</div>
+        </div>
+
+        <div id="pic1-container" style="display:none;">
+            <div class="polaroid">
+                <img src="{% static 'images/hug_pic1.jpeg' %}" alt="Hug">
+                <div class="caption">Warmest place on earth ❤️</div>
+            </div>
+            
+            <p>Scroll down for more...</p>
+            
+            <div class="mystery-box" onclick="openBox()">🎁</div>
+        </div>
+
+        <div id="pic2-container" style="display:none;">
+            <div class="polaroid" style="transform: rotate(3deg);">
+                <img src="{% static 'images/hug_pic2.jpeg' %}" alt="Hug 2">
+                <div class="caption">Never letting go.</div>
+            </div>
+            
+            <button onclick="dropScroll()" style="margin-top:20px; padding:10px; border-radius:10px; border:none; background:#ffecb3; cursor:pointer;">Pull the string 🧶</button>
+            <div class="scroll-container" id="letter-scroll">
+                <div class="scroll-text">
+                    My Dearest,<br><br>
+                    Even though Hug Day has passed, my desire to hold you hasn't.<br>
+                    Sending you a virtual squeeze so tight you might pop!<br><br>
+                    <span class="highlight" onclick="finalWish()">CLICK THIS ✨</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="final-link" style="display:none;">
+            <a href="{% url 'kiss_reveal' %}" class="next-btn">Journey is not ended... Click Here 💋</a>
+        </div>
+    </div>
+
+    <script>
+        const music = document.getElementById('bg-music');
+
+        function wrongDoor() {
+            Swal.fire({ icon: 'error', title: 'Oops!', text: 'Empty Room! Try another door.' });
+        }
+
+        function rightDoor() {
+            music.play().catch(e => console.log("Audio blocked"));
+            document.getElementById('door-section').style.display = 'none';
+            document.getElementById('hug-content').style.display = 'block';
+            Swal.fire({ title: 'You Found Me! 🧸', text: 'I missed you for hugs!', icon: 'success' });
+        }
+
+        function showHugPic() {
+            document.getElementById('pic1-container').style.display = 'block';
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        function openBox() {
+            document.querySelector('.mystery-box').style.display = 'none';
+            document.getElementById('pic2-container').style.display = 'block';
+        }
+
+        function dropScroll() {
+            document.getElementById('letter-scroll').style.height = '300px';
+        }
+
+        function finalWish() {
+            Swal.fire('Happy Hug Day My Love! 🤗❤️');
+            document.getElementById('final-link').style.display = 'block';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

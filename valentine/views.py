@@ -51,10 +51,15 @@ def unlock_day(request, day_id):
             elif "Teddy" in day.title:
                 return render(request, 'teddy.html', {'day': day})
 
-            # --- SPECIAL: PROMISE DAY LOGIC (✅ ADDED THIS!) ---
+            # --- SPECIAL: PROMISE DAY LOGIC ---
             elif "Promise" in day.title:
                 # We pass 'today' so the certificate date is correct
                 return render(request, 'promise.html', {'day': day, 'today': today})
+
+            # --- SPECIAL: KISS DAY LOGIC (Added This!) ---
+            elif "Kiss" in day.title:
+                # Instead of showing a page directly, we start the journey!
+                return redirect('hug_reveal') 
 
             # SUCCESS: Default for Rose Day, etc.
             return render(request, 'love_letter.html', {'day': day})
@@ -64,10 +69,18 @@ def unlock_day(request, day_id):
             
     return render(request, 'quiz.html', {'day': day})
 
-# Standalone views (kept as requested)
+# Standalone views
 def teddy(request):
     return render(request, 'teddy.html')
 
 def promise(request):
-    today = (timezone.now() + timedelta(hours=5, minutes=30)).date() # Ensure India time consistency
+    today = (timezone.now() + timedelta(hours=5, minutes=30)).date()
     return render(request, 'promise.html', {'today': today})
+
+# 👇 NEW VIEWS FOR THE JOURNEY 👇
+
+def hug_reveal(request):
+    return render(request, 'hug_reveal.html')
+
+def kiss_reveal(request):
+    return render(request, 'kiss_reveal.html')

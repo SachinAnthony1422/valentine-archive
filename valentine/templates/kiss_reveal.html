@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kiss Day 💋</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            margin: 0; background: #ffebee; font-family: 'Playfair Display', serif; 
+            text-align: center; overflow-x: hidden; 
+        }
+
+        /* --- BACKGROUND VIDEO --- */
+        #bg-video {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1; opacity: 0.3;
+        }
+
+        /* DOORS AGAIN */
+        #door-section { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .door-container { display: flex; gap: 30px; }
+        .door-card {
+            width: 120px; height: 180px; background: #d32f2f; color: white;
+            display: flex; justify-content: center; align-items: center; font-size: 3rem;
+            cursor: pointer; border-radius: 10px; box-shadow: 0 15px 30px rgba(211, 47, 47, 0.4);
+            transition: transform 0.2s; border: 3px solid white;
+        }
+        .door-card:hover { transform: scale(1.1); }
+
+        /* MAIN CONTENT */
+        #kiss-content { display: none; padding-bottom: 100px; }
+        
+        h1 { font-family: 'Dancing Script', cursive; font-size: 4rem; color: #b71c1c; text-shadow: 3px 3px 0px #ffcdd2; margin-bottom: 30px; }
+        
+        /* STRAWBERRY RAIN */
+        .strawberry { position: fixed; top: -50px; font-size: 35px; animation: fall linear forwards; z-index: 100; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+
+        /* VINTAGE GALLERY */
+        .gallery {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin: 50px auto;
+            max-width: 800px;
+        }
+        .polaroid-mini {
+            background: white; 
+            padding: 10px 10px 10px 10px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            width: 140px; 
+            transform: rotate(var(--r)); 
+            transition: all 0.3s; 
+            cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .polaroid-mini:hover { transform: scale(1.3) rotate(0deg); z-index: 50; box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+        .polaroid-mini img { width: 100%; border-radius: 2px; }
+        
+        /* CAPTIONS (The Writing on the Polaroid) */
+        .p-caption {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.1rem; /* Slightly smaller to fit nicely */
+            color: #444;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        /* VIDEO HIGHLIGHT */
+        .video-wrapper {
+            margin: 60px auto; width: 90%; max-width: 600px;
+            border: 12px solid white; box-shadow: 0 20px 50px rgba(211, 47, 47, 0.6);
+            border-radius: 15px; overflow: hidden; transform: rotate(-2deg);
+        }
+        video.content-vid { width: 100%; display: block; }
+
+        /* FINAL GIFT */
+        .final-gift {
+            font-size: 6rem; cursor: pointer; animation: heartbeat 1.5s infinite; margin-top: 60px;
+            filter: drop-shadow(0 10px 20px rgba(233, 30, 99, 0.5));
+        }
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        /* --- THE BIG MESSAGE --- */
+        .romantic-msg {
+            max-width: 700px; margin: 30px auto; 
+            font-size: 2.5rem;
+            font-family: 'Dancing Script', cursive;
+            color: #d32f2f; line-height: 1.4;
+            background: rgba(255,255,255,0.9); padding: 30px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(211, 47, 47, 0.2);
+            border: 3px solid #ffcdd2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="{% static 'videos/kiss_bg.mp4' %}" type="video/mp4">
+    </video>
+
+    <audio id="bg-music" loop>
+        <source src="{% static 'music/kiss_music.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div id="door-section">
+        <h1 style="font-size: 2rem;">One last choice... 💋</h1>
+        <div class="door-container">
+            <div class="door-card" onclick="wrongDoor()">🚫</div>
+            <div class="door-card" onclick="kissDoor()">💋</div>
+        </div>
+    </div>
+
+    <div id="kiss-content">
+        <h1>Happy Kiss Day My Love</h1>
+        
+        <div class="romantic-msg">
+            "Your lips taste like strawberries, and your love feels like home." 🍓💋
+        </div>
+
+        <div class="gallery">
+            
+            <div class="polaroid-mini" style="--r: -5deg;">
+                <img src="{% static 'images/kiss_pic1.jpeg' %}">
+                <div class="p-caption">My Safe Place ❤️</div>
+            </div>
+            
+            <div class="polaroid-mini" style="--r: 3deg;">
+                <img src="{% static 'images/kiss_pic2.jpeg' %}">
+                <div class="p-caption">You & Sunflowers 🌻</div>
+            </div>
+            
+            <div class="polaroid-mini" style="--r: -2deg;">
+                <img src="{% static 'images/kiss_pic3.jpeg' %}">
+                <div class="p-caption">Forehead Kisses ✨</div>
+            </div>
+            
+            <div class="polaroid-mini" style="--r: 6deg;">
+                <img src="{% static 'images/kiss_pic4.jpeg' %}">
+                <div class="p-caption">Sky High Love ☁️</div>
+            </div>
+            
+            <div class="polaroid-mini" style="--r: -4deg;">
+                <img src="{% static 'images/kiss_pic5.jpeg' %}">
+                <div class="p-caption">My Cutie Patootie 🤪</div>
+            </div>
+            
+            <div class="polaroid-mini" style="--r: 2deg;">
+                <img src="{% static 'images/kiss_pic6.jpeg' %}">
+                <div class="p-caption">Close to You 🥰</div>
+            </div>
+            
+            <div class="polaroid-mini" style="--r: -3deg;">
+                <img src="{% static 'images/kiss_pic7.jpeg' %}">
+                <div class="p-caption">Just Us Two 🌎</div>
+            </div>
+
+        </div>
+
+        <div class="video-wrapper">
+            <video class="content-vid" controls>
+                <source src="{% static 'videos/kiss_video.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+
+        <h3>You have reached the destination...</h3>
+        <div class="final-gift" onclick="finalPopup()">🎁</div>
+    </div>
+
+    <script>
+        const music = document.getElementById('bg-music');
+
+        function wrongDoor() {
+            Swal.fire("Nope! Just a broom closet. 🧹");
+        }
+
+        function kissDoor() {
+            Swal.fire({
+                title: 'Truth or Dare? 😈',
+                icon: 'question',
+                showDenyButton: true,
+                confirmButtonText: 'Truth 😇',
+                denyButtonText: 'Dare 😈',
+                confirmButtonColor: '#4caf50',
+                denyButtonColor: '#f44336'
+            }).then((result) => {
+                if (result.isConfirmed) { askTruth(); } 
+                else if (result.isDenied) { doDare(); }
+            });
+        }
+
+        function askTruth() {
+            Swal.fire({
+                title: 'Where was our first kiss?',
+                input: 'text',
+                confirmButtonText: 'Submit',
+            }).then((result) => {
+                let ans = result.value.toLowerCase().replace(/\s/g, ''); 
+                if (ans.includes('mcdonald') || ans.includes('mcd')) {
+                    startMainEvent();
+                } else {
+                    Swal.fire("Wrong! 😡 Try Dare instead.").then(doDare);
+                }
+            });
+        }
+
+        function doDare() {
+            Swal.fire({
+                title: 'Kiss the Screen! 💋',
+                text: 'I am waiting... (5 seconds)',
+                icon: 'info',
+                timer: 5000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                startMainEvent();
+            });
+        }
+
+        function startMainEvent() {
+            music.play();
+            document.getElementById('door-section').style.display = 'none';
+            document.getElementById('kiss-content').style.display = 'block';
+            startStrawberryRain();
+        }
+
+        function startStrawberryRain() {
+            setInterval(() => {
+                const s = document.createElement('div');
+                s.innerHTML = '🍓';
+                s.classList.add('strawberry');
+                s.style.left = Math.random() * 100 + 'vw';
+                s.style.animationDuration = Math.random() * 2 + 3 + 's';
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 5000);
+            }, 300);
+        }
+
+        function finalPopup() {
+            Swal.fire({
+                title: 'To Be Continued... ❤️',
+                text: 'See you tomorrow for the Grand Finale!',
+                imageUrl: 'https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif',
+                imageWidth: 200,
+                confirmButtonText: 'I can\'t wait! 😍'
+            });
+        }
+    </script>
+</body>
+</html>

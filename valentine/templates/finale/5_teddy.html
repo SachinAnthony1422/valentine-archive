@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Surprise For You 🎁</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            background: #ffebee; font-family: 'Pacifico', cursive; text-align: center; 
+            overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* --- STAGE 1: GIFT BOX --- */
+        #gift-box {
+            font-size: 150px; cursor: pointer; animation: bounce 2s infinite;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+            transition: transform 0.3s;
+        }
+        #gift-box:hover { transform: scale(1.1); }
+
+        /* --- STAGE 2: TEDDY --- */
+        #teddy-container { display: none; animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .teddy { font-size: 180px; cursor: pointer; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); }
+        .click-hint { font-family: sans-serif; font-size: 1rem; color: #d81b60; animation: fade 1.5s infinite; margin-top: -20px;}
+
+        /* --- STAGE 3: HEART REVEAL --- */
+        #heart-reveal { display: none; width: 100%; max-width: 500px; animation: fadeIn 2s; }
+        
+        /* 🛠️ FIXED ALIGNMENT CSS 🛠️ */
+        .heart-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            display: flex; justify-content: center; align-items: center;
+            filter: drop-shadow(0 10px 15px rgba(216, 27, 96, 0.4));
+            transition: transform 0.3s;
+        }
+        .heart-wrapper:hover { transform: scale(1.05); }
+
+        /* The Red Border Background */
+        .heart-bg {
+            position: absolute; width: 320px; height: 320px;
+            background-color: #ff1744;
+            /* SVG Path for a perfect heart shape */
+            clip-path: path('M160 290 C160 290 320 190 320 95 C320 30 255 0 190 0 C160 0 130 30 160 60 C190 30 160 0 130 0 C65 0 0 30 0 95 C0 190 160 290 160 290 Z');
+            z-index: 1;
+        }
+
+        /* The Photo Inside */
+        .heart-photo {
+            position: absolute; width: 320px; height: 320px;
+            object-fit: cover;
+            /* Same path */
+            clip-path: path('M160 290 C160 290 320 190 320 95 C320 30 255 0 190 0 C160 0 130 30 160 60 C190 30 160 0 130 0 C65 0 0 30 0 95 C0 190 160 290 160 290 Z');
+            z-index: 2;
+            transform: scale(0.92); /* Shrink slightly to reveal the red border behind it */
+        }
+        /* ------------------------- */
+
+        .message { font-family: 'Dancing Script', cursive; font-size: 2rem; color: #c2185b; margin: 30px 0 20px 0; }
+
+        .next-btn {
+            background: #d81b60; color: white; border: none; padding: 15px 40px;
+            font-size: 1.5rem; border-radius: 50px; cursor: pointer;
+            font-family: 'Pacifico', cursive; box-shadow: 0 5px 15px rgba(216, 27, 96, 0.4);
+            animation: pulse 2s infinite; text-decoration: none; display: inline-block;
+        }
+
+        /* ANIMATIONS */
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(216, 27, 96, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(216, 27, 96, 0); } 100% { box-shadow: 0 0 0 0 rgba(216, 27, 96, 0); } }
+        @keyframes fade { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" autoplay loop>
+        <source src="{% static 'music/vday_cute.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div id="gift-box" onclick="openGift()">🎁</div>
+    <h2 id="box-text">A Gift For You...</h2>
+
+    <div id="teddy-container" onclick="clickBelly()">
+        <div class="teddy">🧸</div>
+        <div class="click-hint">Poke my belly!</div>
+    </div>
+
+    <div id="heart-reveal">
+        
+        <div class="heart-wrapper">
+            <div class="heart-bg"></div> <img src="{% static 'images/heart_polaroid.jpeg' %}" class="heart-photo" alt="Us"> </div>
+        
+        <div class="message">
+            "You are the heartbeat inside my chest." 💖
+        </div>
+
+        <br>
+        <a href="{% url 'valentine_gallery' %}" class="next-btn">Journey Not Ended... ✨</a>
+    </div>
+
+    <script>
+        // Force play on interaction
+        document.body.addEventListener('click', function() {
+            var audio = document.getElementById('bg-music');
+            if (audio.paused) { audio.play(); }
+        }, { once: true });
+
+        // --- INTERACTION LOGIC ---
+        function openGift() {
+            document.getElementById('gift-box').style.display = 'none';
+            document.getElementById('box-text').style.display = 'none';
+            document.getElementById('teddy-container').style.display = 'block';
+            Swal.fire({
+                title: 'Surprise! 🧸',
+                text: 'I am soft, cute, and I have a secret!',
+                timer: 1500, showConfirmButton: false
+            });
+        }
+
+        function clickBelly() {
+            document.getElementById('teddy-container').style.display = 'none';
+            document.getElementById('heart-reveal').style.display = 'block';
+            
+            Swal.fire({
+                title: 'I Love You! ❤️',
+                text: 'You found the secret message!',
+                icon: 'success',
+                timer: 1500, showConfirmButton: false
+            });
+        }
+    </script>
+</body>
+</html>

@@ -9,6 +9,14 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('valentine.urls')),
     path('promise/', views.promise, name='promise'),
+    # --- 🎆 THE GRAND FINALE (VALENTINE'S DAY) 🎆 ---
+    path('valentine-start/', views.valentine_start, name='valentine_start'),
+    path('valentine-game/', views.valentine_game, name='valentine_game'),
+    path('valentine-quiz/', views.valentine_quiz, name='valentine_quiz'),
+    path('valentine-doors/', views.valentine_doors, name='valentine_doors'),
+    path('valentine-teddy/', views.valentine_teddy, name='valentine_teddy'),
+    path('valentine-gallery/', views.valentine_gallery, name='valentine_gallery'),
+    path('valentine-finale/', views.valentine_finale, name='valentine_finale'),
 ]
 
 # This allows us to serve BOTH Media (Uploads) and Static (Design Files)

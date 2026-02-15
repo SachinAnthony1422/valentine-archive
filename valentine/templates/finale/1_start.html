@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💘</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Dancing Script', cursive; text-align: center; color: white; }
+
+        /* BACKGROUND VIDEO */
+        #bg-video {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1; opacity: 0.6;
+        }
+
+        /* BIG PULSING HEART */
+        .heart-container {
+            margin-top: 20vh;
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .heart-container:hover { transform: scale(1.1); }
+        
+        .big-heart {
+            font-size: 150px;
+            color: #ff1744;
+            text-shadow: 0 0 50px rgba(255, 23, 68, 0.8);
+            animation: heartbeat 1.2s infinite;
+        }
+
+        h1 { font-size: 3.5rem; text-shadow: 2px 2px 4px #000; margin-top: 20px; margin-bottom: 5px; }
+        
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="{% static 'videos/valentine_bg.mp4' %}" type="video/mp4">
+    </video>
+
+    <audio id="bg-music" loop autoplay>
+        <source src="{% static 'music/vday_intro.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div class="heart-container" onclick="askQuestion()">
+        <div class="big-heart">❤️</div>
+        <h1>Happy Valentine's Day!</h1>
+        <p style="font-size: 1.5rem; opacity: 0.9;">(Click the Heart)</p>
+    </div>
+
+    <script>
+        // 1. Try to play music immediately
+        var audio = document.getElementById("bg-music");
+        audio.volume = 0.5; // Set volume to 50%
+        
+        var playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Autoplay prevented. Waiting for click.");
+                // 2. Fallback: Play on first click anywhere
+                document.body.addEventListener('click', function() {
+                    audio.play();
+                }, { once: true });
+            });
+        }
+
+        // --- INTERACTION LOGIC ---
+        function askQuestion() {
+            // Ensure music plays if it hasn't started yet
+            if (audio.paused) { audio.play(); }
+
+            Swal.fire({
+                title: 'Are you ready for your final surprise?',
+                text: 'This is a one-way ticket to my heart! 🚂❤️',
+                icon: 'question',
+                showDenyButton: true,
+                confirmButtonText: 'YES! 😍',
+                denyButtonText: 'No... 🙈',
+                confirmButtonColor: '#ff1744',
+                denyButtonColor: '#555',
+                allowOutsideClick: false,
+                background: '#fff0f5'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'valentine_quiz' %}";
+                } else if (result.isDenied) {
+                    window.location.href = "{% url 'valentine_game' %}";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

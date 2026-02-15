@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick a Door 🚪</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            margin: 0; overflow: hidden; font-family: 'Dancing Script', cursive; text-align: center; color: white;
+            display: flex; flex-direction: column; justify-content: center; height: 100vh;
+        }
+
+        #bg-video {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1;
+        }
+
+        h1 { font-size: 3rem; margin-bottom: 40px; text-shadow: 2px 2px 5px rgba(0,0,0,0.7); }
+
+        .door-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        
+        .door {
+            width: 90px; height: 160px; 
+            background: linear-gradient(to bottom, #8d6e63, #5d4037); 
+            border: 4px solid #3e2723;
+            cursor: pointer; position: relative; border-radius: 10px 10px 0 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+            transition: transform 0.3s;
+        }
+        .door:hover { transform: scale(1.05); background: linear-gradient(to bottom, #a1887f, #6d4c41); }
+        
+        .knob { 
+            width: 12px; height: 12px; background: gold; border-radius: 50%; 
+            position: absolute; top: 50%; right: 10px; box-shadow: 0 0 5px gold; 
+        }
+        
+        .door-label { margin-top: 20px; font-size: 1.5rem; color: #fff; text-shadow: 1px 1px 2px #000; }
+
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="{% static 'videos/valentine_bg.mp4' %}" type="video/mp4">
+    </video>
+
+    <audio id="love-mashup" loop>
+        <source src="{% static 'music/mashup.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <h1>One Final Choice...</h1>
+    
+    <div class="door-container">
+        <div class="door" onclick="wrongDoor()">
+            <div class="knob"></div>
+            <div class="door-label">1</div>
+        </div>
+
+        <div class="door" onclick="rightDoor()">
+            <div class="knob"></div>
+            <div class="door-label">2</div>
+        </div>
+
+        <div class="door" onclick="wrongDoor()">
+            <div class="knob"></div>
+            <div class="door-label">3</div>
+        </div>
+    </div>
+
+    <script>
+        // --- MUSIC LOGIC ---
+        document.addEventListener("DOMContentLoaded", function() {
+            var audio = document.getElementById("love-mashup");
+            
+            // 1. RECOVER PLAYBACK POSITION
+            var savedTime = sessionStorage.getItem("valentine_music_time");
+            if (savedTime) {
+                audio.currentTime = savedTime;
+            }
+
+            // 2. ATTEMPT TO PLAY
+            var playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Waiting for user interaction to play music...");
+                    document.body.addEventListener('click', function() {
+                        audio.play();
+                    }, { once: true });
+                });
+            }
+
+            // 3. SAVE PLAYBACK POSITION EVERY SECOND
+            setInterval(function() {
+                sessionStorage.setItem("valentine_music_time", audio.currentTime);
+            }, 1000);
+        });
+
+        // --- DOOR LOGIC ---
+        function wrongDoor() {
+            Swal.fire({
+                title: 'Oops! 🧱',
+                text: 'A wall! I hope you know which one to open... 😉',
+                icon: 'error',
+                confirmButtonColor: '#5d4037'
+            });
+        }
+
+        function rightDoor() {
+            Swal.fire({
+                title: 'You Found It! 🎁',
+                text: 'Entering the secret room...',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = "{% url 'valentine_teddy' %}";
+            });
+        }
+    </script>
+</body>
+</html>

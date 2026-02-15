@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boyfriend Quiz 📝</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { 
+            /* Romantic Gradient Background */
+            background: linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
+            font-family: 'Nunito', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0;
+            color: #4a4a4a;
+        }
+
+        /* Cute Love Alert Banner */
+        .warning-banner {
+            background: #ff80ab; color: white; width: 100%; padding: 15px; text-align: center; 
+            font-weight: bold; border-bottom: 3px solid #f50057; position: sticky; top: 0; z-index: 10; 
+            font-size: 1.1rem; box-shadow: 0 2px 10px rgba(255, 128, 171, 0.3);
+            font-family: 'Dancing Script', cursive; letter-spacing: 1px;
+        }
+
+        /* The "Love Note" Card Container */
+        .love-note {
+            background: rgba(255, 255, 255, 0.95); width: 90%; max-width: 500px; padding: 30px; margin: 40px 0;
+            border-radius: 20px;
+            border: 3px solid #ffadd2; /* Soft pink border */
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.2); /* Soft rosy shadow */
+            animation: slideIn 0.6s ease-out;
+            position: relative;
+        }
+        
+        /* Cute little heart icon on the card */
+        .love-note::after {
+            content: '💖'; position: absolute; top: -15px; right: -15px; font-size: 30px;
+            background: white; border-radius: 50%; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .question { 
+            font-size: 1.3rem; margin-bottom: 25px; font-weight: bold; line-height: 1.4; color: #d81b60;
+        }
+        
+        /* Romantic Button Styling */
+        .options button {
+            display: block; width: 100%; padding: 15px 20px; margin: 12px 0;
+            background: #fff0f5; border: 2px solid #ffadd2; border-radius: 50px; /* Rounded pill shapes */
+            cursor: pointer; text-align: left; transition: all 0.3s ease;
+            font-family: 'Nunito', sans-serif; font-size: 1.1rem; color: #555;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Hover effect: Pink gradient and lift */
+        .options button:hover { 
+            background: linear-gradient(to right, #ff80ab, #ff4081); 
+            color: white; border-color: transparent;
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 7px 15px rgba(255, 64, 129, 0.3);
+        }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" autoplay loop>
+        <source src="{% static 'music/vday_quiz.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <div class="warning-banner">
+        💖 LOVE ALERT: Boyfriend Evaluation in Progress! 💖<br>
+        (Prove you know me, my love! 😉)
+    </div>
+
+    <div id="quiz-container">
+        </div>
+
+    <script>
+        // Force play on interaction
+        document.body.addEventListener('click', function() {
+            var audio = document.getElementById('bg-music');
+            if (audio.paused) { audio.play(); }
+        }, { once: true });
+
+
+        // --- YOUR CUSTOM QUESTIONS ---
+        const questions = [
+            {
+                q: "1. Who said 'I Love You' first? 🤔",
+                correct: 1, // Index 1 = B
+                options: ["A) Me (Mirasol)", "B) You (Sachin)", "C) Both"],
+                msg: "Correct! You couldn't resist me! 🥰"
+            },
+            {
+                q: "2. What does Sachin like most about you? ✨",
+                correct: 3, // Index 3 = D
+                options: ["A) Eyes", "B) Mookutti", "C) Lips", "D) All of the above"],
+                msg: "Exactly. I love everything about you. 💖"
+            },
+            {
+                q: "3. When I kiss you, hug you, or sleep on your shoulder, what do I feel? 🏠",
+                correct: 1, // Index 1 = B
+                options: ["A) Romance", "B) Home", "C) Love"],
+                msg: "You are my safe place. My home. 🏡❤️"
+            },
+            {
+                q: "4. What are the three things I say a lot? 🗣️",
+                correct: 2, // Index 2 = C
+                options: ["A) I'm hungry", "B) I'm tired", "C) I love you"],
+                msg: "And I mean it every single time! 😍"
+            },
+            {
+                q: "5. What goes through my mind when we click a picture of us? 📸",
+                correct: 1, // Index 1 = B
+                options: ["A) We look good", "B) I'm so lucky", "C) Good Memories"],
+                msg: "I truly am the luckiest guy alive. 🍀"
+            },
+            {
+                q: "6. What is my favorite food? 🍽️",
+                correct: 3, // Index 3 = D
+                options: ["A) Pizza", "B) You", "C) Ofc Both", "D) Only You"],
+                msg: "You are the sweetest treat! 🍬"
+            },
+            {
+                q: "7. What is my shoe size? 👟",
+                correct: 1, // Index 1 = B
+                options: ["A) 6", "B) 7", "C) 8"],
+                msg: "Good attention to detail, my love! 👌"
+            },
+            {
+                q: "8. Where is our dream vacation? ✈️🏔️",
+                correct: 2, // Index 2 = C
+                options: ["A) All over India", "B) Switzerland", "C) Iceland"],
+                msg: "Pack your bags, one day we are going! ❄️"
+            },
+            {
+                q: "9. Who looks beautiful in the picture? 👸",
+                correct: 3, // Index 3 = D
+                options: ["A) Me (Sachin)", "B) You (Mirasol)", "C) Both", "D) Only Mirasol"],
+                msg: "Facts. You are the queen. 👑"
+            },
+            {
+                q: "10. What is our final dream destination? 🏡👨‍👩‍👧‍👦",
+                correct: 2, // Index 2 = C
+                options: ["A) A small house", "B) A villa", "C) Just us and family in a good small house united forever"],
+                msg: "That is the perfect dream. Forever with you. ❤️"
+            }
+        ];
+
+        let currentQ = 0;
+
+        function loadQuestion() {
+            if (currentQ >= questions.length) {
+                // QUIZ FINISHED
+                Swal.fire({
+                    title: 'Evaluation Complete! 💯',
+                    text: 'You know me perfectly! Now, take that victory selfie! 📸',
+                    imageUrl: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Q5cDU4c2s4ZXR4aXF5cWp5ZWR4aXF5cWp5ZWR4aXF5cWp5ZWR4aXF5cSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif',
+                    imageWidth: 200,
+                    imageHeight: 200,
+                    imageAlt: 'Cute Cat',
+                    confirmButtonText: 'Let\'s Go to the Next Surprise!',
+                    confirmButtonColor: '#ff4081',
+                    background: '#fff0f5',
+                    color: '#c2185b'
+                }).then(() => {
+                    window.location.href = "{% url 'valentine_doors' %}";
+                });
+                return;
+            }
+
+            const q = questions[currentQ];
+            const html = `
+                <div class="love-note">
+                    <div class="question">${q.q}</div>
+                    <div class="options">
+                        ${q.options.map((opt, index) => 
+                            `<button onclick="check(${index})">${opt}</button>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('quiz-container').innerHTML = html;
+        }
+
+        function check(index) {
+            const q = questions[currentQ];
+            if (index === q.correct) {
+                Swal.fire({
+                    title: 'Correct! ✅',
+                    text: q.msg,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    confirmButtonColor: '#ff4081',
+                    background: '#fff0f5',
+                    color: '#c2185b'
+                }).then(() => {
+                    currentQ++;
+                    loadQuestion();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Oops! 🙈',
+                    text: 'Think again, my love! I know you know this! 😉',
+                    icon: 'error',
+                    confirmButtonText: 'Try Again',
+                    confirmButtonColor: '#ff4081',
+                    background: '#fff0f5',
+                    color: '#c2185b'
+                });
+            }
+        }
+
+        // Start Quiz
+        loadQuestion();
+    </script>
+</body>
+</html>

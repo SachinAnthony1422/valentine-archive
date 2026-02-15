@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Memories 🎞️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            margin: 0; background: #ffebee; font-family: 'Dancing Script', cursive; 
+            overflow-x: hidden; text-align: center;
+        }
+
+        /* BACKGROUND VIDEO */
+        #bg-video {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1; opacity: 0.3; filter: sepia(0.3);
+        }
+
+        h1 { font-size: 3.5rem; color: #b71c1c; margin-top: 40px; text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8); }
+
+        /* THE STRING LINE */
+        .string {
+            width: 100%; height: 4px; background: #8d6e63;
+            position: relative; margin-top: 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* GALLERY CONTAINER */
+        .gallery-scroll {
+            display: flex; overflow-x: auto; padding: 60px 40px; gap: 40px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; 
+            align-items: center;
+        }
+        .gallery-scroll::-webkit-scrollbar { display: none; }
+
+        /* POLAROID STYLING (Fixed Size) */
+        .polaroid {
+            background: white; padding: 10px 10px 40px 10px; /* Tighter padding */
+            min-width: 220px; max-width: 220px; /* Fixed width */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            position: relative; transition: all 0.4s ease;
+            transform-origin: top center;
+            border-radius: 2px;
+        }
+        
+        /* CLIP (Peg) */
+        .polaroid::before {
+            content: ''; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 12px; height: 35px; background: linear-gradient(to right, #a1887f, #8d6e63); 
+            border-radius: 4px; box-shadow: 1px 1px 3px rgba(0,0,0,0.4); z-index: 5;
+        }
+
+        .polaroid:nth-child(odd) { transform: rotate(4deg); }
+        .polaroid:nth-child(even) { transform: rotate(-4deg); }
+        
+        /* Hover Effect */
+        .polaroid:hover { transform: rotate(0deg) scale(1.15) translateY(-10px); z-index: 20; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+        .polaroid img { 
+            width: 100%; height: 220px; object-fit: cover; /* Ensures image fits perfectly */
+            border: 1px solid #eee; 
+        }
+        
+        .caption { 
+            margin-top: 10px; font-size: 1.4rem; color: #333; 
+            font-family: 'Dancing Script', cursive; 
+        }
+
+        /* ANNIVERSARY SECTION */
+        .anniversary-section {
+            padding: 80px 20px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.8));
+            margin-top: 50px;
+            opacity: 0; transform: translateY(50px);
+            animation: fadeUp 2s forwards 1s; /* Delays appearance */
+        }
+
+        .anniversary-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem; color: #d32f2f;
+            text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(211, 47, 47, 0.3);
+            margin-bottom: 10px;
+        }
+        
+        .anniversary-subtitle {
+            font-size: 2rem; color: #555; margin-bottom: 40px;
+        }
+
+        .final-btn {
+            background: #d32f2f; color: white; padding: 15px 50px; font-size: 1.5rem;
+            text-decoration: none; border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(211, 47, 47, 0.4);
+            transition: transform 0.3s; display: inline-block;
+        }
+        .final-btn:hover { transform: scale(1.1); background: #b71c1c; }
+        
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="{% static 'videos/kiss_bg.mp4' %}" type="video/mp4">
+    </video>
+
+    <audio id="bg-music" autoplay loop>
+        <source src="{% static 'music/vday_gallery.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <h1>Moments in Time...</h1>
+
+    <div class="string"></div>
+
+    <div class="gallery-scroll">
+        <div class="polaroid"><img src="{% static 'images/vday_pic1.jpeg' %}"><div class="caption">Day 1 Magic</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic2.jpeg' %}"><div class="caption">Silly Faces</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic3.jpeg' %}"><div class="caption">Date Night</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic4.jpeg' %}"><div class="caption">Just Us</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic5.jpeg' %}"><div class="caption">Laughter</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic6.jpeg' %}"><div class="caption">Adventures</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic7.jpeg' %}"><div class="caption">Peace</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic8.jpeg' %}"><div class="caption">Crazy Love</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic9.jpeg' %}"><div class="caption">Forever</div></div>
+        <div class="polaroid"><img src="{% static 'images/vday_pic10.jpeg' %}"><div class="caption">My Valentine</div></div>
+    </div>
+
+    <div class="anniversary-section">
+        <div class="anniversary-title">Happy 5th Month Anniversary!</div>
+        <div class="anniversary-subtitle">5 Months of Love, Laughter, and You. ❤️</div>
+        
+        <br>
+        <a href="{% url 'valentine_finale' %}" class="final-btn">Save Our Memories 💾</a>
+    </div>
+
+    <script>
+        // Force play on interaction
+        document.body.addEventListener('click', function() {
+            var audio = document.getElementById('bg-music');
+            if (audio.paused) { audio.play(); }
+        }, { once: true });
+    </script>
+</body>
+</html>

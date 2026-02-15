@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Destination ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: #1a0505; /* Deep romantic dark red/black */
+            color: white; font-family: 'Cinzel', serif; 
+            text-align: center; margin: 0; overflow-x: hidden;
+            padding-bottom: 50px;
+        }
+
+        /* --- VINTAGE HEADER --- */
+        header { padding: 40px 20px; }
+        h1 { 
+            font-size: 3rem; color: #d4af37; /* Gold */
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5); 
+            margin-bottom: 10px; letter-spacing: 3px;
+        }
+        .subtitle { font-family: 'Playfair Display', serif; font-style: italic; color: #aaa; font-size: 1.2rem; }
+
+        /* --- SIDE BY SIDE VIDEOS --- */
+        .video-container {
+            display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;
+            padding: 40px 20px;
+        }
+        
+        .vintage-frame {
+            position: relative; width: 45%; max-width: 500px; min-width: 300px;
+            border: 8px solid #fff; padding: 5px; background: white;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            transform: rotate(-2deg); transition: transform 0.5s;
+        }
+        .vintage-frame:nth-child(2) { transform: rotate(2deg); }
+        .vintage-frame:hover { transform: rotate(0) scale(1.02); z-index: 10; }
+
+        video { 
+            width: 100%; display: block; 
+            filter: sepia(0.4) contrast(1.1); /* VINTAGE EFFECT */
+        }
+
+        /* --- HEART BUTTON --- */
+        .heart-btn-container { margin: 50px 0; }
+        .heart-btn {
+            background: #ff1744; color: white; border: none; padding: 20px 40px;
+            font-size: 2rem; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 0 20px #ff1744; animation: heartbeat 1.5s infinite;
+            font-family: 'Dancing Script', cursive;
+        }
+        .heart-btn:hover { transform: scale(1.1); box-shadow: 0 0 40px #ff1744; }
+
+        /* --- HIDDEN LOVE LETTER --- */
+        #love-letter-section {
+            display: none; /* Hidden initially */
+            max-width: 700px; margin: 0 auto; padding: 40px;
+            background: #fff0f5; color: #4e342e;
+            border-radius: 10px; box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+            position: relative; animation: unfold 1s ease-out;
+        }
+
+        .letter-content {
+            font-family: 'Dancing Script', cursive; font-size: 1.8rem; line-height: 1.6;
+            text-align: left;
+        }
+        
+        /* --- RAIN EFFECT --- */
+        .rain-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999; overflow: hidden;
+        }
+        .falling-item { position: absolute; top: -50px; animation: fall linear forwards; }
+
+        /* --- BIG FOOTER --- */
+        .grand-footer {
+            margin-top: 100px; padding: 60px 20px;
+            background: linear-gradient(to top, black, transparent);
+        }
+        .footer-text {
+            font-size: 2rem; color: white; letter-spacing: 2px; margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        .hug-pic {
+            width: 300px; height: 300px; object-fit: cover; border-radius: 50%;
+            border: 5px solid #d4af37; box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* ANIMATIONS */
+        @keyframes heartbeat { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes unfold { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" autoplay loop>
+        <source src="{% static 'music/vday_finale.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <header>
+        <h1>Our Story</h1>
+        <div class="subtitle">Directed by Sachin & Mirasol</div>
+    </header>
+
+    <div class="video-container">
+        <div class="vintage-frame">
+            <video autoplay muted loop playsinline>
+                <source src="{% static 'videos/final_vid1.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+        <div class="vintage-frame">
+            <video autoplay muted loop playsinline>
+                <source src="{% static 'videos/final_vid2.mp4' %}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <div class="heart-btn-container" id="btn-section">
+        <button class="heart-btn" onclick="revealSurprise()">💌 Click to Open My Heart 💌</button>
+    </div>
+
+    <div id="love-letter-section">
+        <h2 style="font-family: 'Playfair Display', serif; color: #c2185b; text-align: center;">My Dearest Mirasol,</h2>
+        <div class="letter-content">
+            <p>
+                From the moment you entered my life, everything changed. You are not just my girlfriend, you are my home, my peace, and my greatest adventure. <br><br>
+                Every laugh we share, every silence we keep, and every memory we make is a treasure I hold close to my heart. <br><br>
+                This journey we are on? It's my favorite story. And the best part is... we are just getting started. <br><br>
+                I love you, endlessly. ❤️
+            </p>
+            <p style="text-align: right; margin-top: 20px;">- Your Sachin</p>
+        </div>
+    </div>
+
+    <div class="rain-container" id="rain"></div>
+
+    <div class="grand-footer">
+        <div class="footer-text">You Have Reached The Destination</div>
+        <img src="{% static 'images/final_pic.jpeg' %}" class="hug-pic" alt="Us Hugging">
+        <div class="footer-text" style="font-size: 1.5rem; margin-top: 20px; color: #ff1744;">AND I LOVE YOU ❤️</div>
+    </div>
+
+    <script>
+        // Force play on interaction
+        document.body.addEventListener('click', function() {
+            var audio = document.getElementById('bg-music');
+            if (audio.paused) { audio.play(); }
+        }, { once: true });
+
+        function revealSurprise() {
+            // 1. Hide Button, Show Letter
+            document.getElementById('btn-section').style.display = 'none';
+            document.getElementById('love-letter-section').style.display = 'block';
+            
+            // 2. Scroll to letter
+            document.getElementById('love-letter-section').scrollIntoView({ behavior: 'smooth' });
+
+            // 3. START THE RAIN! ☔
+            startRain();
+        }
+
+        function startRain() {
+            const container = document.getElementById('rain');
+            const items = ['🍫', '🧸', '❤️', '🌹', '✨', '💖'];
+            
+            // Create 100 falling items over time
+            let count = 0;
+            const interval = setInterval(() => {
+                const el = document.createElement('div');
+                el.classList.add('falling-item');
+                el.innerText = items[Math.floor(Math.random() * items.length)];
+                
+                // Random styles
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                el.style.animationDuration = (Math.random() * 2 + 2) + 's'; // Fall speed between 2-4s
+                
+                container.appendChild(el);
+                
+                // Remove element after animation to prevent lag
+                setTimeout(() => { el.remove(); }, 4000);
+
+                count++;
+                if (count > 200) clearInterval(interval); // Stop creating after 200 items (prevent crash)
+            }, 100);
+        }
+    </script>
+</body>
+</html>
